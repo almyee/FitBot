@@ -31,8 +31,8 @@ function Footer({ company, links }) {
   const { href, name } = company;
   const { size } = typography;
 
-  const renderLinks = () =>
-    links.map((link) => (
+  const renderLinks = (links=[]) =>
+    links.map((link) => ( //default to empty array
       <SoftBox key={link.name} component="li" px={2} lineHeight={1}>
         <Link href={link.href} target="_blank">
           <SoftTypography variant="button" fontWeight="regular" color="text">

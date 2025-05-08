@@ -15,6 +15,20 @@ Coded by www.creative-tim.com
 
 import { useMemo } from "react";
 
+// ✅ REGISTER Chart.js components
+import {
+  Chart as ChartJS,
+  LineElement,
+  PointElement,
+  LineController,
+  CategoryScale,
+  LinearScale,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+} from "chart.js";
+
 // porp-types is a library for typechecking of props
 import PropTypes from "prop-types";
 
@@ -25,15 +39,26 @@ import { Line } from "react-chartjs-2";
 import Card from "@mui/material/Card";
 
 // Soft UI Dashboard React components
-import SoftBox from "components/SoftBox";
-import SoftTypography from "components/SoftTypography";
+import SoftBox from "../../../../components/SoftBox";
+import SoftTypography from "../../../../components/SoftTypography";
 
 // DefaultLineChart configurations
-import configs from "examples/Charts/LineCharts/DefaultLineChart/configs";
+import configs from "./configs";
 
 // Soft UI Dashboard React base styles
-import colors from "assets/theme/base/colors";
+import colors from "../../../../assets/theme/base/colors";
 
+ChartJS.register(
+  LineElement,
+  PointElement,
+  LineController,
+  CategoryScale,
+  LinearScale,
+  Title,
+  Tooltip,
+  Legend,
+  Filler
+);
 function DefaultLineChart({ title, description, height, chart }) {
   const chartDatasets = chart.datasets
     ? chart.datasets.map((dataset) => ({

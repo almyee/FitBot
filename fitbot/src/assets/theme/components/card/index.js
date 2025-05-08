@@ -14,12 +14,12 @@ Coded by www.creative-tim.com
 */
 
 // Soft UI Dashboard React Base Styles
-import colors from "assets/theme/base/colors";
-import borders from "assets/theme/base/borders";
-import boxShadows from "assets/theme/base/boxShadows";
+import colors from "../../base/colors";
+import borders from "../../base/borders";
+import boxShadows from "../../base/boxShadows";
 
 // Soft UI Dashboard React Helper Function
-import rgba from "assets/theme/functions/rgba";
+import rgba from "../../functions/rgba";
 
 const { black, white } = colors;
 const { borderWidth, borderRadius } = borders;

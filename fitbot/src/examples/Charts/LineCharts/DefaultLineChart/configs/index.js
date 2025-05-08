@@ -14,7 +14,7 @@ Coded by www.creative-tim.com
 */
 
 // Soft UI Dashboard React base styles
-import typography from "assets/theme/base/typography";
+import typography from "../../../../../assets/theme/base/typography";
 
 function configs(labels, datasets) {
   return {

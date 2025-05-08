@@ -30,8 +30,29 @@
 //   </BrowserRouter>
 // );
 
+// import React from "react";
+// import ReactDOM from "react-dom";
+// import { BrowserRouter } from "react-router-dom";
+// import { ThemeProvider } from "@mui/material/styles";
+// import CssBaseline from "@mui/material/CssBaseline";
+
+// import App from "./App";
+// import theme from "./assets/theme";
+// import { SoftUIControllerProvider } from "./context";
+
+// ReactDOM.render(
+//   <SoftUIControllerProvider>
+//     <BrowserRouter>
+//       <ThemeProvider theme={theme}>
+//         <CssBaseline />
+//         <App />
+//       </ThemeProvider>
+//     </BrowserRouter>
+//   </SoftUIControllerProvider>,
+//   document.getElementById("root")
+// );
 import React from "react";
-import ReactDOM from "react-dom";
+import ReactDOM from "react-dom/client";  // ✅ update import
 import { BrowserRouter } from "react-router-dom";
 import { ThemeProvider } from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
@@ -40,7 +61,8 @@ import App from "./App";
 import theme from "./assets/theme";
 import { SoftUIControllerProvider } from "./context";
 
-ReactDOM.render(
+const root = ReactDOM.createRoot(document.getElementById("root"));  // ✅ createRoot
+root.render(
   <SoftUIControllerProvider>
     <BrowserRouter>
       <ThemeProvider theme={theme}>
@@ -48,6 +70,6 @@ ReactDOM.render(
         <App />
       </ThemeProvider>
     </BrowserRouter>
-  </SoftUIControllerProvider>,
-  document.getElementById("root")
+  </SoftUIControllerProvider>
 );
+

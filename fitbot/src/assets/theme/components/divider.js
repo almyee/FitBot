@@ -14,11 +14,11 @@ Coded by www.creative-tim.com
 */
 
 // Soft UI Dashboard React base styles
-import colors from "assets/theme/base/colors";
+import colors from "../base/colors";
 
 // Soft UI Dashboard React helper functions
-import rgba from "assets/theme/functions/rgba";
-import pxToRem from "assets/theme/functions/pxToRem";
+import rgba from "../functions/rgba";
+import pxToRem from "../functions/pxToRem";
 
 const { dark, transparent, white } = colors;
 
