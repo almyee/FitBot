@@ -42,12 +42,22 @@
 // );
 
 // App.js
-import Dashboard from './pages/Dashboard';
 
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Dashboard from "./pages/Dashboard";
+import SignIn from "./pages/Signin";
+import Settings from "./pages/Settings";
 function App() {
-  return <Dashboard />;
+  return (
+    <Routes>
+      <Route path="/" element={<Dashboard />} />
+      <Route path="/sign-in" element={<SignIn />} />
+      <Route path="/settings" element={<Settings />} />
+    </Routes>
+  );
 }
 
 export default App;
+
 
 

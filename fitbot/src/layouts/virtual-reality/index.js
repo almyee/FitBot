@@ -189,7 +189,7 @@ function VRInfo() {
         <Grid container>
           <Grid item xs={12}>
             <SoftTypography variant="h2" fontWeight="bold">
-              FitBot
+             FitBot 
             </SoftTypography>
           </Grid>
         </Grid>
