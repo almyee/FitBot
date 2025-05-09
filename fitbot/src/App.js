@@ -47,13 +47,22 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import SignIn from "./pages/Signin";
 import Settings from "./pages/Settings";
+import SignUp from "./pages/Signup";
+import DashboardNavbar from "./examples/Navbars/DashboardNavbar";  // update import path if needed
+
+//./examples/Navbars/DashboardNavbar/index.js
 function App() {
   return (
+    <>
+    <DashboardNavbar />
     <Routes>
-      <Route path="/" element={<Dashboard />} />
       <Route path="/sign-in" element={<SignIn />} />
+      <Route path="/sign-up" element={<SignUp />} />
       <Route path="/settings" element={<Settings />} />
+      <Route path="/" element={<Dashboard />} />
     </Routes>
+    </>
+    
   );
 }
 

@@ -44,7 +44,6 @@ import DefaultLineChart from "../examples/Charts/LineCharts/DefaultLineChart";
 function Dashboard() {
   return (
     <>
-      <DashboardNavbar />
       <SoftBox p={2}>
         <SoftTypography variant="h4" mb={2}>
           Dashboard
