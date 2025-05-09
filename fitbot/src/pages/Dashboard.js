@@ -52,7 +52,7 @@ function Dashboard() {
         {/* Statistics Cards */}
         <SoftBox display="flex" justifyContent="space-between" flexWrap="wrap" gap={2}>
           <MiniStatisticsCard
-            title={{ text: "Users" }}
+            title={{ text: "Exercise" }}
             count="0"
             percentage={{ color: "success", text: "" }}
             // icon={{
@@ -62,7 +62,7 @@ function Dashboard() {
           />
 
           <MiniStatisticsCard
-            title={{ text: "Revenue" }}
+            title={{ text: "Step Count" }}
             count="$0"
             percentage={{ color: "success", text: "" }}
             // icon={{
@@ -71,7 +71,7 @@ function Dashboard() {
             //   }}
           />
           <MiniStatisticsCard
-            title={{ text: "Orders" }}
+            title={{ text: "Goals" }}
             count="0"
             percentage={{ color: "success", text: "" }}
             // icon={{
@@ -80,7 +80,7 @@ function Dashboard() {
             //   }}
           />
           <MiniStatisticsCard
-            title={{ text: "Feedback" }}
+            title={{ text: "Water Intake" }}
             count="0"
             // icon={{
             //     color: "info",
