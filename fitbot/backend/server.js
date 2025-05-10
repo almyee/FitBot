@@ -12,13 +12,24 @@ app.use(cors({ origin: '*' }));
 app.use(express.json());
 
 // Test route
-app.get("/", (req, res) => {
-  res.send("API is running...");
+app.get('/summary', (req, res) => {
+    const message = [
+        { id: 1, activity: "API working..." },
+      ];
+      res.json(message);
 });
-app.get('/', (req, res) => {
-    console.log('Received a GET request at /');
-    res.send("Backend is working!");
+app.get('/logs', (req, res) => {
+    // Sample response, replace with actual database logic
+    const logs = [
+      { id: 1, activity: "User signed in", timestamp: "2025-05-09 10:00:00" },
+      { id: 2, activity: "User clicked a button", timestamp: "2025-05-09 10:05:00" },
+    ];
+    res.json(logs);
   });
+// app.get('/', (req, res) => {
+//     console.log('Received a GET request at /');
+//     res.send("Backend is working!");
+//   });
   
 // Import activity routes (you'll add this next)
 const activityRoutes = require("./routes/activity");
@@ -31,13 +42,6 @@ app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
 //   console.log(`🚀 Server running on port ${PORT}`);
 // });
 
-app.get('/logs', (req, res) => {
-    // Sample response, replace with actual database logic
-    const logs = [
-      { id: 1, activity: "User signed in", timestamp: "2025-05-09 10:00:00" },
-      { id: 2, activity: "User clicked a button", timestamp: "2025-05-09 10:05:00" },
-    ];
-    res.json(logs);
-  });
+
   
   

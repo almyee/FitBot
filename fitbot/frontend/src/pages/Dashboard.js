@@ -16,12 +16,9 @@ function Dashboard() {
 
   useEffect(() => {
     // Make a GET request to your backend API
-    fetch("http://localhost:3001")
+    fetch("http://localhost:3001/summary")
       .then((response) => response.json())
-      .then((data) => {
-        console.log(data); // Inspect the response
-        setData(data); // Update the state with the response data
-      })
+      .then((message) => setData(message))
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
 
