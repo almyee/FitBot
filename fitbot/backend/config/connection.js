@@ -3,6 +3,7 @@ const { MongoClient } = require("mongodb");
 require("dotenv").config();
 // const uri = process.env.MONGO_URI
 // const client = new MongoClient(uri);
+// console.log("Loaded MONGO_URI:", process.env.MONGO_URI);
 
 async function createActivtyLog (client, newActivtyLog) {
   const result = await client.db ("fitbot"). collection ("activitylogs").insertOne(newActivtyLog);
@@ -43,6 +44,22 @@ async function findActivtyLogsWithMaxMinDuration (client, {
     }
 }
 
+async function updateActivityLogByName(client, nameOfActivtyLog, updatedActivityLog) {
+  const result = await client.db("fitbot").collection ("activitylogs").updateOne({name: nameOfActivtyLog}, {$set: updatedActivityLog});
+  console.log(`${result.matchedCount} document(s) matched the query criteria`);
+  console.log(`${result.modifiedCount} document(s) was/were updated`);
+}
+
+async function deleteActivityLogByName(client, nameOfActivtyLog) {
+  const result = await client.db("fitbot").collection("activitylogs").deleteOne({name: nameOfActivtyLog});
+  console.log(`${result.deletedCount} document(s) was/were deleted`);
+}
+
+async function deleteManyActivityLogByName(client, nameOfActivtyLog) {
+  const result = await client.db("fitbot").collection("activitylogs").deleteMany({name: nameOfActivtyLog});
+  console.log(`${result.deletedCount} document(s) was/were deleted`);
+}
+
 async function listDatabases(client){
   databasesList = await client.db().admin().listDatabases();
 
@@ -56,19 +73,22 @@ async function main(){
    * See https://docs.mongodb.com/ecosystem/drivers/node/ for more details
    */
   // const uri = "mongodb+srv://<username>:<password>@<your-cluster-url>/sample_airbnb?retryWrites=true&w=majority";
-  const uri = "mongodb+srv://almeyee:Erniedog2000!@cluster0.qnvu6r0.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+  const uri = process.env.MONGO_URI  //"mongodb+srv://almeyee:Erniedog2000!@cluster0.qnvu6r0.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 
   const client = new MongoClient(uri);
 
   try {
       // Connect to the MongoDB cluster
       await client.connect();
-      await findActivtyLogsWithMaxMinDuration(client, {
-        minDuration: 5,
-        maxDuration: 60,
-        maxNumResults: 5
-      });
-      // await findOneActivtyLogByName(client, "alyssa");
+      // await deleteManyActivityLogByName(client, "alyssa2");
+      // await deleteActivityLogByName(client, "alyssa2");
+      // await updateActivityLogByName(client, "alyssa2", {duration: 15, action: "cardio"});
+      // await findActivtyLogsWithMaxMinDuration(client, {
+      //   minDuration: 5,
+      //   maxDuration: 60,
+      //   maxNumResults: 5
+      // });
+      await findOneActivtyLogByName(client, "alyssa");
       // Make the appropriate DB calls
       // await  listDatabases(client);
       // await createActivtyLog(client, {
