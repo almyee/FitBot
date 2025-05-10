@@ -1,4 +1,4 @@
-// mongo.js - this works to print out all the databases
+// mongo.js - this works to print out all the databases, DO NOT DELETE COMMENTS... please :)
 const { MongoClient } = require("mongodb");
 require("dotenv").config();
 // const uri = process.env.MONGO_URI
@@ -25,6 +25,15 @@ async function findOneActivtyLogByName (client, nameOfActivtyLog) {
     console.log(`No activity logs found with the name: ${nameOfActivtyLog}`);
   }
   console.log(`New activity log created with the following id: ${result.insertedId}`);
+}
+async function findActivtyLogs (client) {
+  const result = await client.db ("fitbot"). collection ("activitylogs").find();
+  if (result) {
+    console.log(`Found an activity logs in the collection: `);
+    console.log(result);
+  } else {
+    console.log(`No activity logs found.`);
+  }
 }
 
 async function findActivtyLogsWithMaxMinDuration (client, {
@@ -62,10 +71,24 @@ async function deleteManyActivityLogByName(client, nameOfActivtyLog) {
 
 async function listDatabases(client){
   databasesList = await client.db().admin().listDatabases();
-
   console.log("Databases:");
   databasesList.databases.forEach(db => console.log(` - ${db.name}`));
 };
+
+async function listActivityLogs(client, dbName, collectionName) {
+  const collection = client.db(dbName).collection(collectionName);
+  const documents = await collection.find({}).toArray();
+
+  console.log(`Documents in ${dbName}.${collectionName}:`);
+  documents.forEach(doc => console.log(doc));
+}
+
+
+// async function listActivityLogs(client){
+//   const collection = await client.db("fitbot").collection("activitylogs")
+//   console.log("Activity Logs:");
+//   collection.log.forEach(db => console.log(` - ${db.name}`));
+// };
 
 async function main(){
   /**
@@ -80,6 +103,8 @@ async function main(){
   try {
       // Connect to the MongoDB cluster
       await client.connect();
+      // await findActivtyLogs(client);
+      await listActivityLogs(client, "fitbot", "activitylogs");
       // await deleteManyActivityLogByName(client, "alyssa2");
       // await deleteActivityLogByName(client, "alyssa2");
       // await updateActivityLogByName(client, "alyssa2", {duration: 15, action: "cardio"});
@@ -88,7 +113,7 @@ async function main(){
       //   maxDuration: 60,
       //   maxNumResults: 5
       // });
-      await findOneActivtyLogByName(client, "alyssa");
+      // await findOneActivtyLogByName(client, "alyssa");
       // Make the appropriate DB calls
       // await  listDatabases(client);
       // await createActivtyLog(client, {
@@ -143,18 +168,3 @@ async function main(){
 }
 
 main().catch(console.error);
-
-// async function connectToDB() {
-//   try {
-//     if (!client.topology || !client.topology.isConnected()) {
-//       await client.connect();
-//       console.log("✅ Connected to MongoDB");
-//     }
-//     return client.db("fitbot"); // Use your actual database name
-//   } catch (err) {
-//     console.error("❌ MongoDB connection error:", err.message);
-//     throw err;
-//   }
-// }
-
-// module.exports = connectToDB;
