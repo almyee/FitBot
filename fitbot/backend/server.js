@@ -1,12 +1,19 @@
 // backend/server.js
+const { MongoClient } = require("mongodb");
 const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const connectDB = require("./config/db");
-const ActivityLog = require("./models/ActivityLog"); // adjust the path if needed
+// const ActivityLog = require("./models/ActivityLog"); // adjust the path if needed
 const app = express();
 connectDB();
-
+const uri = process.env.MONGO_URI
+// const client = new MongoClient(uri);
+// const listActivityLogs = require("./config/connection.js");
+const {
+    listActivityLogs,
+    client
+  } = require("./config/connection"); // adjust path if needed
 //app.use(cors());
 app.use(cors({ origin: '*' }));
 app.use(express.json());
@@ -28,27 +35,32 @@ app.get('/summary', (req, res) => {
 //   });
 
 
-app.get("/logs", async (req, res) => {
+app.get("/activitylogs", async (req, res) => {
   try {
-    const logs = await ActivityLog.find().sort({ timestamp: -1 }); // newest first
+    await client.connect(); // optional but helpful
+    const logs = await listActivityLogs(client, "fitbot", "activitylogs");
+    console.log("after fetching activity logs in server.js")
+    // const logs = await ActivityLog.find().sort({ timestamp: -1 }); // newest first
     res.json(logs);
   } catch (error) {
-    console.error("❌ Error fetching logs:", error.message);
+    console.error("Error fetching activity logs:", error.message);
     res.status(500).json({ error: "Failed to fetch logs" });
+  }finally {
+    await client.close(); // optional but ensures clean exit
   }
 });
-app.post("/logs/sample", async (req, res) => {
-    try {
-      const log = new ActivityLog({
-        action: "User viewed dashboard",
-        metadata: { user: "Alyssa", page: "dashboard" },
-      });
-      await log.save();
-      res.json(log);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
-  });
+// app.post("/logs/sample", async (req, res) => {
+//     try {
+//       const log = new ActivityLog({
+//         action: "User viewed dashboard",
+//         metadata: { user: "Alyssa", page: "dashboard" },
+//       });
+//       await log.save();
+//       res.json(log);
+//     } catch (err) {
+//       res.status(500).json({ error: err.message });
+//     }
+//   });
   
 // At the top of server.js
 // const ActivityLog = require("./models/ActivityLog");
@@ -83,8 +95,8 @@ app.post("/logs/test", async (req, res) => {
 //   });
   
 // Import activity routes (you'll add this next)
-const activityRoutes = require("./routes/activity");
-app.use("/api/activity", activityRoutes);
+// const activityRoutes = require("./routes/activity");
+// app.use("/api/activity", activityRoutes);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

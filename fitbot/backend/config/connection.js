@@ -1,7 +1,7 @@
 // mongo.js - this works to print out all the databases, DO NOT DELETE COMMENTS... please :)
 const { MongoClient } = require("mongodb");
 require("dotenv").config();
-// const uri = process.env.MONGO_URI
+const uri = process.env.MONGO_URI
 // const client = new MongoClient(uri);
 // console.log("Loaded MONGO_URI:", process.env.MONGO_URI);
 
@@ -79,26 +79,20 @@ async function listActivityLogs(client, dbName, collectionName) {
   const collection = client.db(dbName).collection(collectionName);
   const documents = await collection.find({}).toArray();
 
-  console.log(`Documents in ${dbName}.${collectionName}:`);
-  documents.forEach(doc => console.log(doc));
+  // console.log(`Documents in ${dbName}.${collectionName}:`);
+  // documents.forEach(doc => console.log(doc));
+  return documents
 }
+  const client = new MongoClient(uri);
 
-
-// async function listActivityLogs(client){
-//   const collection = await client.db("fitbot").collection("activitylogs")
-//   console.log("Activity Logs:");
-//   collection.log.forEach(db => console.log(` - ${db.name}`));
-// };
 
 async function main(){
   /**
    * Connection URI. Update <username>, <password>, and <your-cluster-url> to reflect your cluster.
    * See https://docs.mongodb.com/ecosystem/drivers/node/ for more details
    */
-  // const uri = "mongodb+srv://<username>:<password>@<your-cluster-url>/sample_airbnb?retryWrites=true&w=majority";
-  const uri = process.env.MONGO_URI  //"mongodb+srv://almeyee:Erniedog2000!@cluster0.qnvu6r0.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 
-  const client = new MongoClient(uri);
+  const uri = process.env.MONGO_URI  
 
   try {
       // Connect to the MongoDB cluster
@@ -168,3 +162,16 @@ async function main(){
 }
 
 main().catch(console.error);
+module.exports = {
+  listActivityLogs,
+  createActivtyLog,
+  createMultipleActivtyLogs,
+  findOneActivtyLogByName,
+  findActivtyLogs,
+  findActivtyLogsWithMaxMinDuration,
+  updateActivityLogByName,
+  deleteActivityLogByName,
+  deleteManyActivityLogByName,
+  listDatabases,
+  client
+};

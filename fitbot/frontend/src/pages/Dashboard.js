@@ -1,4 +1,4 @@
-// Blank example
+// need to have `npm run start` running in terminal #1, have `node server.js` running in termimal #2 (in backend/config/) -> then can see dashboard with backend connected
 import React, { useEffect, useState } from "react";
 // import Icon from "@mui/material/Icon";
 // import InfoIcon from '@mui/icons-material/Info';
@@ -24,7 +24,7 @@ function Dashboard() {
 
   useEffect(() => {
     // Fetch the logs from the backend
-    fetch("http://localhost:3001/logs")
+    fetch("http://localhost:3001/activitylogs")
       .then((response) => response.json())
       .then((logs) => setLogData(logs))
       .catch((error) => console.error("Error fetching logs:", error));
