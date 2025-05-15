@@ -135,18 +135,37 @@ function SignIn() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  //   // Get the stored user data from localStorage
+  //   const storedUser = JSON.parse(localStorage.getItem(username));
+  //   if (storedUser && storedUser.password === password) {
+  //     // Store the logged-in user in localStorage for the session
+  //     localStorage.setItem("currentUser", username);
+  //     navigate("/settings");
+  //   } else {
+  //     alert("Invalid username or password!");
+  //   }
+  // };
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Get the stored user data from localStorage
-    const storedUser = JSON.parse(localStorage.getItem(username));
-    if (storedUser && storedUser.password === password) {
-      // Store the logged-in user in localStorage for the session
-      localStorage.setItem("currentUser", username);
+    try {
+      const res = await fetch("http://localhost:3001/api/auth/sign-in", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+  
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Login failed");
+  
+      localStorage.setItem("currentUser", username); // optional: store session user
       navigate("/settings");
-    } else {
-      alert("Invalid username or password!");
+    } catch (err) {
+      alert(err.message);
     }
   };
+  
 
   return (
     <Container maxWidth="sm" sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
