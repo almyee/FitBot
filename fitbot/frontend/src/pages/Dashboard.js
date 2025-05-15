@@ -78,7 +78,7 @@ function Dashboard() {
         </SoftBox>
 
         {/* Example line chart */}
-        <SoftBox mt={4}>
+        {/* <SoftBox mt={4}>
           <DefaultLineChart
             title="Example Line Chart"
             description="This is an example of a line chart with no data yet."
@@ -88,6 +88,24 @@ function Dashboard() {
                 {
                   label: "Sample Data",
                   data: [0, 0, 0, 0, 0],
+                  color: "info",
+                },
+              ],
+            }}
+          />
+        </SoftBox> */}
+        <SoftBox mt={4}>
+          <DefaultLineChart
+            title="Workout Duration Over Time"
+            description="Logged workout durations from the database"
+            chart={{
+              labels: logData?.map((entry) =>
+                new Date(entry.timestamp).toLocaleDateString()
+              ) || [],
+              datasets: [
+                {
+                  label: "Duration (minutes)",
+                  data: logData?.map((entry) => entry.duration) || [],
                   color: "info",
                 },
               ],

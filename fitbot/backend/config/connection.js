@@ -1,21 +1,40 @@
+/**
+ * mongo.js
+ * ----------
+ * This module handles all database operations for the "fitbot" application using MongoDB.
+ * It provides functions to create, read, update, and delete activity logs stored in the "activitylogs" collection.
+ * It can also be run directly to test specific database operations.
+ */
+
+
 // mongo.js - this works to print out all the databases, DO NOT DELETE COMMENTS... please :)
+
+// Import required modules
 const { MongoClient } = require("mongodb");
 require("dotenv").config();
+
+// Get MongoDB connection URI from environment variables
 const uri = process.env.MONGO_URI
 // const client = new MongoClient(uri);
 // console.log("Loaded MONGO_URI:", process.env.MONGO_URI);
 
+
+// ========== DATABASE OPERATION FUNCTIONS ========== //
+
+// Insert a single activity log into the "activitylogs" collection
 async function createActivtyLog (client, newActivtyLog) {
   const result = await client.db ("fitbot"). collection ("activitylogs").insertOne(newActivtyLog);
   console.log(`New activity log created with the following id: ${result.insertedId}`);
 }
 
+// Insert multiple activity logs at once
 async function createMultipleActivtyLogs (client, newActivtyLog) {
   const result = await client.db ("fitbot"). collection ("activitylogs").insertMany(newActivtyLog);
   console.log(`${result.insertedCount} new activity logs created with the following id(s): `);
   console.log(result.insertedIds)
 }
 
+// Find a single activity log by name
 async function findOneActivtyLogByName (client, nameOfActivtyLog) {
   const result = await client.db ("fitbot"). collection ("activitylogs").findOne({name: nameOfActivtyLog});
   if (result) {
@@ -26,6 +45,8 @@ async function findOneActivtyLogByName (client, nameOfActivtyLog) {
   }
   console.log(`New activity log created with the following id: ${result.insertedId}`);
 }
+
+// Find all activity logs (basic query)
 async function findActivtyLogs (client) {
   const result = await client.db ("fitbot"). collection ("activitylogs").find();
   if (result) {
@@ -36,6 +57,7 @@ async function findActivtyLogs (client) {
   }
 }
 
+// Find activity logs within a specified duration range
 async function findActivtyLogsWithMaxMinDuration (client, {
   minDuration = 0, maxDuration = 0, maxNumResults = Number.MAX_SAFE_INTEGER} = {}) {
   const cursor = client.db ("fitbot"). collection ("activitylogs").find(
@@ -53,28 +75,33 @@ async function findActivtyLogsWithMaxMinDuration (client, {
     }
 }
 
+// Update an activity log by name
 async function updateActivityLogByName(client, nameOfActivtyLog, updatedActivityLog) {
   const result = await client.db("fitbot").collection ("activitylogs").updateOne({name: nameOfActivtyLog}, {$set: updatedActivityLog});
   console.log(`${result.matchedCount} document(s) matched the query criteria`);
   console.log(`${result.modifiedCount} document(s) was/were updated`);
 }
 
+// Delete a single activity log by name
 async function deleteActivityLogByName(client, nameOfActivtyLog) {
   const result = await client.db("fitbot").collection("activitylogs").deleteOne({name: nameOfActivtyLog});
   console.log(`${result.deletedCount} document(s) was/were deleted`);
 }
 
+// Delete all activity logs with a specific name
 async function deleteManyActivityLogByName(client, nameOfActivtyLog) {
   const result = await client.db("fitbot").collection("activitylogs").deleteMany({name: nameOfActivtyLog});
   console.log(`${result.deletedCount} document(s) was/were deleted`);
 }
 
+// List all databases (used for debugging or setup)
 async function listDatabases(client){
   databasesList = await client.db().admin().listDatabases();
   console.log("Databases:");
   databasesList.databases.forEach(db => console.log(` - ${db.name}`));
 };
 
+// List all documents from a specific database and collection
 async function listActivityLogs(client, dbName, collectionName) {
   const collection = client.db(dbName).collection(collectionName);
   const documents = await collection.find({}).toArray();
@@ -83,8 +110,10 @@ async function listActivityLogs(client, dbName, collectionName) {
   // documents.forEach(doc => console.log(doc));
   return documents
 }
+  // Create a new MongoDB client instance
   const client = new MongoClient(uri);
 
+// ========== MAIN EXECUTION FUNCTION ========== //
 
 async function main(){
   /**
@@ -162,6 +191,9 @@ async function main(){
 }
 
 main().catch(console.error);
+
+// ========== EXPORT FUNCTIONS FOR USE IN OTHER FILES ========== //
+
 module.exports = {
   listActivityLogs,
   createActivtyLog,

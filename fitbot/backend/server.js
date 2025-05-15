@@ -1,4 +1,15 @@
 // backend/server.js
+
+/**
+ * server.js
+ * ----------
+ * This is the main entry point for the Express backend server.
+ * It sets up and configures the server, connects to the MongoDB database,
+ * and defines the API routes for handling various HTTP requests.
+ * The routes include a test route for verifying the server is working,
+ * and routes for logging activities and fetching activity logs from the database.
+ */
+
 const { MongoClient } = require("mongodb");
 const express = require("express");
 const cors = require("cors");
