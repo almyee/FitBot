@@ -110,36 +110,16 @@ async function main(){
       // await findOneActivtyLogByName(client, "alyssa");
       // Make the appropriate DB calls
       // await  listDatabases(client);
-      // await createActivtyLog(client, {
-      //   name: "alyssa",
-      //   action: "workout1",
-      //   timestamp: "2019-02-16T05:00:00.000+00:00"
-      // })
+      await createActivtyLog(client, {
+        user: "alyssa",
+        action: "jump rope",
+        workoutType: "cardio",
+        duration: "30",
+        timestamp: "2019-02-16T05:00:00.000+00:00",
+        intensity: "hard",
+        caloriesBurned: 240
+      })
       // await createMultipleActivtyLogs(client, [
-      //   {
-      //     name: "alyssa2",
-      //     action: "workout5",
-      //     timestamp: "2020-05-13T05:00:00.000+00:00",
-      //     duration: 10
-      //   },
-      //   {
-      //     name: "alyssa2",
-      //     action: "workout6",
-      //     timestamp: "2022-12-10T05:00:00.000+00:00",
-      //     duration: 30
-      //   },
-      //   {
-      //     name: "alyssa2",
-      //     action: "workout7",
-      //     timestamp: "2029-01-11T05:00:00.000+00:00",
-      //     duration: 25
-      //   },
-      //   {
-      //     name: "alyssa3",
-      //     action: "workout8",
-      //     timestamp: "2020-05-13T05:00:00.000+00:00",
-      //     duration: 45
-      //   },
       //   {
       //     name: "alyssa3",
       //     action: "workout9",
