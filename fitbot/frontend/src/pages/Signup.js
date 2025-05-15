@@ -8,26 +8,50 @@ function SignUp() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  //   // Check if username already exists in localStorage
+  //   const existingUser = localStorage.getItem(username);
+  //   if (existingUser) {
+  //     alert("Username already exists. Please choose a different username.");
+  //     return;
+  //   }
+  //   // Ensure passwords match
+  //   if (password !== confirmPassword) {
+  //     alert("Passwords do not match!");
+  //     return;
+  //   }
+
+  //   // Save the new user data to localStorage
+  //   const newUser = { username, password };
+  //   localStorage.setItem(username, JSON.stringify(newUser)); // Save the user
+  //   alert("Account created successfully!");
+  //   navigate("/sign-in"); // Redirect to sign-in page after successful sign-up
+  // };
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Check if username already exists in localStorage
-    const existingUser = localStorage.getItem(username);
-    if (existingUser) {
-      alert("Username already exists. Please choose a different username.");
-      return;
-    }
-    // Ensure passwords match
     if (password !== confirmPassword) {
       alert("Passwords do not match!");
       return;
     }
-
-    // Save the new user data to localStorage
-    const newUser = { username, password };
-    localStorage.setItem(username, JSON.stringify(newUser)); // Save the user
-    alert("Account created successfully!");
-    navigate("/sign-in"); // Redirect to sign-in page after successful sign-up
+  
+    try {
+      const res = await fetch("http://localhost:3001/api/auth/sign-up", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+  
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Signup failed");
+  
+      alert("Account created successfully!");
+      navigate("/sign-in");
+    } catch (err) {
+      alert(err.message);
+    }
   };
+  
 
   return (
     <Container maxWidth="sm" sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>

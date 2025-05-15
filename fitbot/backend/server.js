@@ -78,6 +78,9 @@ app.post("/logs/test", async (req, res) => {
   }
 });
 
+const authRoutes = require("./auth"); // adjust path if needed
+app.use("/api/auth", authRoutes);
+
 //   app.get("/logs", async (req, res) => {
 //     try {
 //       const db = await connectToDB();
@@ -106,5 +109,6 @@ app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
 // });
 
 
-  
+
+
   
