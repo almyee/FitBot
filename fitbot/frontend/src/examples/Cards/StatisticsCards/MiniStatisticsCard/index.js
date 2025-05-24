@@ -154,6 +154,7 @@ Coded by www.creative-tim.com
 // };
 
 // export default MiniStatisticsCard;
+import { useNavigate } from "react-router-dom";
 import PropTypes from "prop-types";
 import Card from "@mui/material/Card";
 import Grid from "@mui/material/Grid";
@@ -161,17 +162,28 @@ import Icon from "@mui/material/Icon";
 import SoftBox from "../../../../components/SoftBox";
 import SoftTypography from "../../../../components/SoftTypography";
 
-function MiniStatisticsCard({ bgColor, title, count, percentage, icon, direction }) {
+//function MiniStatisticsCard({ bgColor, title, count, percentage, icon, direction }) {
+function MiniStatisticsCard({ bgColor, icon, direction }) {
+  const navigate = useNavigate();
+
   // Default icon color if not provided
   const iconColor = icon?.color || "primary"; // default color if icon color is undefined
-  const iconComponent = icon?.component || ""; // default empty string if icon component is undefined
+  const iconComponent = icon?.component ||  <Icon>help</Icon>; // default empty string if icon component is undefined
+
+  //Navigates to a different page where user can log exercise activity
+  const handleClick = () => {
+    navigate("/select-exercise"); // this should match your route
+  };
+
+  const isLeft = direction === "left";
+  const isRight = direction === "right";
 
   return (
-    <Card>
+    <Card onClick={handleClick} style={{ cursor: "pointer" }}>
       <SoftBox bgColor={bgColor} variant="gradient">
         <SoftBox p={2}>
           <Grid container alignItems="center">
-            {direction === "left" ? (
+            {isLeft && (
               <Grid item>
                 <SoftBox
                   variant="gradient"
@@ -185,15 +197,14 @@ function MiniStatisticsCard({ bgColor, title, count, percentage, icon, direction
                   alignItems="center"
                   shadow="md"
                 >
-                  <Icon fontSize="small" color="inherit">
-                    {iconComponent}
-                  </Icon>
+                  {iconComponent}
                 </SoftBox>
               </Grid>
-            ) : null}
-            <Grid item xs={8}>
-              <SoftBox ml={direction === "left" ? 2 : 0} lineHeight={1}>
-                <SoftTypography
+            )}
+
+            <Grid item xs={isRight ? 8 : true}>
+              <SoftBox ml={isLeft ? 2 : 0} lineHeight={1}>
+                {/* <SoftTypography
                   variant="button"
                   color={bgColor === "black" ? "text" : "black"}
                   opacity={bgColor === "white" ? 1 : 0.7}
@@ -201,24 +212,25 @@ function MiniStatisticsCard({ bgColor, title, count, percentage, icon, direction
                   fontWeight={title.fontWeight}
                 >
                   {title.text}
-                </SoftTypography>
+                </SoftTypography> */}
+
                 <SoftTypography
                   variant="h5"
                   fontWeight="bold"
                   color={bgColor === "black" ? "dark" : "black"}
                 >
-                  {count}{" "}
+                  {/* {count}{" "}
                   <SoftTypography
                     variant="button"
                     color={percentage?.color || "success"}
                     fontWeight="bold"
                   >
                   {percentage?.text || ""}
-                  </SoftTypography>
+                  </SoftTypography> */}
                 </SoftTypography>
               </SoftBox>
             </Grid>
-            {direction === "right" ? (
+            {isRight && (
               <Grid item xs={4}>
                 <SoftBox
                   variant="gradient"
@@ -233,12 +245,10 @@ function MiniStatisticsCard({ bgColor, title, count, percentage, icon, direction
                   alignItems="center"
                   shadow="md"
                 >
-                  <Icon fontSize="small" color="inherit">
-                    {iconComponent}
-                  </Icon>
+                {iconComponent}
                 </SoftBox>
               </Grid>
-            ) : null}
+            )}
           </Grid>
         </SoftBox>
       </SoftBox>
@@ -248,18 +258,18 @@ function MiniStatisticsCard({ bgColor, title, count, percentage, icon, direction
 
 MiniStatisticsCard.defaultProps = {
   bgColor: "white",
-  title: {
-    fontWeight: "medium",
-    text: "",
-  },
-  percentage: {
-    color: "success",
-    text: "",
-  },
+  //title: {
+    //fontWeight: "medium",
+    //text: "",
+  //},
+  //percentage: {
+    //color: "success",
+    //text: "",
+  //},
   direction: "right",
   icon: {
     color: "primary", // default color
-    component: "help", // default icon (can be adjusted as necessary)
+    component:  <Icon>help</Icon>, // default icon (can be adjusted as necessary)
   },
 };
 
@@ -274,24 +284,24 @@ MiniStatisticsCard.propTypes = {
     "error",
     "dark",
   ]),
-  title: PropTypes.shape({
-    fontWeight: PropTypes.oneOf(["light", "regular", "medium", "bold"]),
-    text: PropTypes.string,
-  }),
-  count: PropTypes.oneOfType([PropTypes.string, PropTypes.number]), //.isRequired
-  percentage: PropTypes.shape({
-    color: PropTypes.oneOf([
-      "primary",
-      "secondary",
-      "info",
-      "success",
-      "warning",
-      "error",
-      "dark",
-      "white",
-    ]),
-    text: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
-  }),
+  //title: PropTypes.shape({
+    //fontWeight: PropTypes.oneOf(["light", "regular", "medium", "bold"]),
+    //text: PropTypes.string,
+  //}),
+  //count: PropTypes.oneOfType([PropTypes.string, PropTypes.number]), //.isRequired
+  // percentage: PropTypes.shape({
+  //   color: PropTypes.oneOf([
+  //     "primary",
+  //     "secondary",
+  //     "info",
+  //     "success",
+  //     "warning",
+  //     "error",
+  //     "dark",
+  //     "white",
+  //   ]),
+  //   text: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  // }),
   icon: PropTypes.shape({
     color: PropTypes.oneOf([
       "primary",
@@ -302,7 +312,7 @@ MiniStatisticsCard.propTypes = {
       "error",
       "dark",
     ]),
-    component: PropTypes.node.isRequired,
+    component: PropTypes.node, //.isRequired
   }).isRequired,
   direction: PropTypes.oneOf(["right", "left"]),
 };

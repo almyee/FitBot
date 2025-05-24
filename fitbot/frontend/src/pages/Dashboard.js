@@ -1,8 +1,6 @@
 // need to have `npm run start` running in terminal #1, have `node server.js` running in termimal #2 (in backend/config/) -> then can see dashboard with backend connected
 import React, { useEffect, useState } from "react";
-// import Icon from "@mui/material/Icon";
-// import InfoIcon from '@mui/icons-material/Info';
-import PersonIcon from '@mui/icons-material/Person';
+import { DirectionsRun, Person, InfoIcon, Icon } from '@mui/icons-material';
 import SoftBox from "../components/SoftBox";
 import SoftTypography from "../components/SoftTypography";
 import DashboardNavbar from "../examples/Navbars/DashboardNavbar";
@@ -40,7 +38,18 @@ function Dashboard() {
         {/* Statistics Cards */}
         <SoftBox display="flex" justifyContent="space-between" flexWrap="wrap" gap={2}>
           <MiniStatisticsCard
-            title={{ text: "Exercise" }}
+            //title={{ text: "Exercise" }}
+            //count="0"
+            //percentage={{ color: "success", text: "" }}
+            icon={{
+              color: "info",
+              component: <DirectionsRun fontSize="small" />,
+            }}
+            direction="right"
+          />
+
+          <MiniStatisticsCard
+            title={{ text: "Step Count" }}
             count="0"
             percentage={{ color: "success", text: "" }}
             // icon={{
@@ -50,15 +59,6 @@ function Dashboard() {
           />
 
           <MiniStatisticsCard
-            title={{ text: "Step Count" }}
-            count="$0"
-            percentage={{ color: "success", text: "" }}
-            // icon={{
-            //     color: "info",
-            //     component: <PersonIcon />,
-            //   }}
-          />
-          <MiniStatisticsCard
             title={{ text: "Goals" }}
             count="0"
             percentage={{ color: "success", text: "" }}
@@ -67,6 +67,7 @@ function Dashboard() {
             //     component: <PersonIcon />,
             //   }}
           />
+
           <MiniStatisticsCard
             title={{ text: "Water Intake" }}
             count="0"

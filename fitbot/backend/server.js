@@ -103,10 +103,10 @@ app.use("/api/auth", authRoutes);
 //       res.status(500).json({ error: "Failed to fetch logs" });
 //     }
 //   });
-// app.get('/', (req, res) => {
-//     console.log('Received a GET request at /');
-//     res.send("Backend is working!");
-//   });
+//app.get('/', (req, res) => {
+  //    console.log('Received a GET request at /');
+  //    res.send("Backend is working!");
+  //  });
   
 // Import activity routes (you'll add this next)
 // const activityRoutes = require("./routes/activity");

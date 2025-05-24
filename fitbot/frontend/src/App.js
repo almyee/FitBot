@@ -49,6 +49,7 @@ import SignIn from "./pages/Signin";
 import Settings from "./pages/Settings";
 import SignUp from "./pages/Signup";
 import DashboardNavbar from "./examples/Navbars/DashboardNavbar";  // update import path if needed
+import SelectExercise from "./examples/Cards/StatisticsCards/MiniStatisticsCard/SelectExercise";
 
 //./examples/Navbars/DashboardNavbar/index.js
 function App() {
@@ -60,6 +61,8 @@ function App() {
       <Route path="/sign-up" element={<SignUp />} />
       <Route path="/settings" element={<Settings />} />
       <Route path="/" element={<Dashboard />} />
+      <Route path="/select-exercise" element={<SelectExercise />} />
+      {/* Other routes */}
     </Routes>
     </>
     
