@@ -36,12 +36,16 @@ export default function SelectExercisePage() {
     <SoftBox p={3}>
       <Grid container spacing={3}>
         {/* Left column: MiniStatisticsCards for each exercise */}
+         <Grid item xs={12}>
+          <h2>Select Exercise</h2>
+        </Grid>
+
         <Grid item xs={12} md={4}>
-          <Grid container spacing={2}>
+          <Grid container direction="column" spacing={2}>
             {exercises.map((exercise) => (
-              <Grid item xs={12} key={exercise.id}>
+              <Grid item key={exercise.id}>
                 <MiniStatisticsCard
-                  title={{ text: exercise.title, fontWeight: "medium" }}
+                  title={{ text: exercise.title, fontWeight: "bold" }}
                   icon={exercise.icon}
                   bgColor="white"
                   direction="left"
@@ -88,9 +92,7 @@ export default function SelectExercisePage() {
                 Submit Activity
               </SoftButton>
             </SoftBox>
-          ) : (
-            <h3>Select an exercise to log activity</h3>
-          )}
+          ): null}
         </Grid>
       </Grid>
     </SoftBox>
