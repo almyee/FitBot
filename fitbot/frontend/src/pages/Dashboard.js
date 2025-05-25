@@ -1,6 +1,7 @@
 // need to have `npm run start` running in terminal #1, have `node server.js` running in termimal #2 (in backend/config/) -> then can see dashboard with backend connected
 import React, { useEffect, useState } from "react";
-import { DirectionsRun, Person, InfoIcon, Icon } from '@mui/icons-material';
+import '@fortawesome/fontawesome-free/css/all.min.css';
+import { DirectionsRun } from '@mui/icons-material';
 import SoftBox from "../components/SoftBox";
 import SoftTypography from "../components/SoftTypography";
 import DashboardNavbar from "../examples/Navbars/DashboardNavbar";
@@ -38,43 +39,47 @@ function Dashboard() {
         {/* Statistics Cards */}
         <SoftBox display="flex" justifyContent="space-between" flexWrap="wrap" gap={2}>
           <MiniStatisticsCard
-            //title={{ text: "Exercise" }}
+            title={{ text: "Exercise" }}
             //count="0"
-            //percentage={{ color: "success", text: "" }}
+            percentage={{ color: "success", text: "" }}
             icon={{
               color: "info",
-              component: <DirectionsRun fontSize="small" />,
-            }}
-            direction="right"
+              component: <DirectionsRun fontSize="large" />,
+            }} 
+            direction="bottom"
           />
+
 
           <MiniStatisticsCard
             title={{ text: "Step Count" }}
-            count="0"
+            //count="0"
             percentage={{ color: "success", text: "" }}
-            // icon={{
-            //     color: "info",
-            //     component: <PersonIcon />,
-            //   }}
+            icon={{
+                color: "info",
+                component: <SoftBox style={{ transform: "rotate(-90deg)" }}><i className="fas fa-shoe-prints fa-lg" /></SoftBox>
+              }}
+            direction="bottom" 
           />
 
           <MiniStatisticsCard
             title={{ text: "Goals" }}
-            count="0"
+            //count="0"
             percentage={{ color: "success", text: "" }}
-            // icon={{
-            //     color: "info",
-            //     component: <PersonIcon />,
-            //   }}
+            icon={{
+              color: "info",
+              component: <i className="fa-solid fa-list-check fa-lg"/>
+            }}
+            direction="bottom"
           />
 
           <MiniStatisticsCard
             title={{ text: "Water Intake" }}
-            count="0"
-            // icon={{
-            //     color: "info",
-            //     component: <PersonIcon />,
-            //   }}
+            //count="0"
+            icon={{
+              color: "info",
+              component: <i class="fa-solid fa-glass-water-droplet fa-lg"/>
+            }}
+            direction="bottom"
           />
         </SoftBox>
 

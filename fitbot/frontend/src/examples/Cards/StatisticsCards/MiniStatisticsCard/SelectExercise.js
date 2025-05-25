@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Grid from "@mui/material/Grid";
+import { DirectionsRun, DirectionsBike, Pool} from '@mui/icons-material';
 import MiniStatisticsCard from "../MiniStatisticsCard";
 import SoftBox from "../../../../components/SoftBox";
 import SoftTypography from "../../../../components/SoftTypography";
@@ -7,9 +8,9 @@ import SoftInput from "../../../../components/SoftInput";
 import SoftButton from "../../../../components/SoftButton/SoftButtonRoot";
 
 const exercises = [
-  { id: "running", title: "Running", icon: { component: <i className="fas fa-running" /> } },
-  { id: "cycling", title: "Cycling", icon: { component: <i className="fas fa-bicycle" /> } },
-  { id: "swimming", title: "Swimming", icon: { component: <i className="fas fa-swimmer" /> } },
+  { id: "running", title: "Running", icon: { component:  <DirectionsRun fontSize="large" /> } },
+  { id: "cycling", title: "Cycling", icon: { component: <DirectionsBike fontSize="large" /> } },
+  { id: "swimming", title: "Swimming", icon: { component: <Pool fontSize="large"  /> } },
   // Add more as needed
 ];
 
@@ -33,23 +34,23 @@ export default function SelectExercisePage() {
   };
 
   return (
-    <SoftBox p={3}>
-      <Grid container spacing={3}>
+    <SoftBox p={6}>
+      <h3>Select Exercise</h3>
+      <Grid container spacing={4}>
         {/* Left column: MiniStatisticsCards for each exercise */}
-         <Grid item xs={12}>
-          <h2>Select Exercise</h2>
-        </Grid>
-
         <Grid item xs={12} md={4}>
-          <Grid container direction="column" spacing={2}>
+          <Grid container direction="column" spacing={4}>
             {exercises.map((exercise) => (
               <Grid item key={exercise.id}>
                 <MiniStatisticsCard
-                  title={{ text: exercise.title, fontWeight: "bold" }}
+                  title={{ text: exercise.title, fontWeight: "bold"}}
                   icon={exercise.icon}
                   bgColor="white"
-                  direction="left"
-                  onClick={() => setSelectedExercise(exercise)}
+                  direction="right"
+                  onClick={() => setSelectedExercise(selectedExercise)}
+                  // Added props to increase size
+                  value={{ text: "" }}
+                  description={{ text: "" }}
                 />
               </Grid>
             ))}
@@ -59,8 +60,10 @@ export default function SelectExercisePage() {
         {/* Right column: form to input activity data */}
         <Grid item xs={12} md={8}>
           {selectedExercise ? (
-            <SoftBox>
-              <h3>Log Activity: {selectedExercise.title}</h3>
+            <SoftBox bgColor="white" p={3} borderRadius="md" boxShadow="lg">
+              <SoftBox mb={2}>
+                <h3>Log Activity: {selectedExercise.title}</h3>
+              </SoftBox>
               <SoftBox mb={2}>
                 <SoftInput
                   type="text"
@@ -70,6 +73,7 @@ export default function SelectExercisePage() {
                   onChange={handleInputChange}
                 />
               </SoftBox>
+      
               <SoftBox mb={2}>
                 <SoftInput
                   type="text"
@@ -79,6 +83,7 @@ export default function SelectExercisePage() {
                   onChange={handleInputChange}
                 />
               </SoftBox>
+
               <SoftBox mb={2}>
                 <SoftInput
                   type="text"
@@ -88,11 +93,12 @@ export default function SelectExercisePage() {
                   onChange={handleInputChange}
                 />
               </SoftBox>
+
               <SoftButton color="info" onClick={handleSubmit}>
                 Submit Activity
               </SoftButton>
             </SoftBox>
-          ): null}
+          ) : null}
         </Grid>
       </Grid>
     </SoftBox>

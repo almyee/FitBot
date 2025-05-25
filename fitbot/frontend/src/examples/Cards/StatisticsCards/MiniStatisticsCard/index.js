@@ -163,7 +163,7 @@ import SoftBox from "../../../../components/SoftBox";
 import SoftTypography from "../../../../components/SoftTypography";
 
 //function MiniStatisticsCard({ bgColor, title, count, percentage, icon, direction }) {
-function MiniStatisticsCard({ bgColor, icon, direction }) {
+function MiniStatisticsCard({ bgColor, icon, title, percentage, direction }) {
   const navigate = useNavigate();
 
   // Default icon color if not provided
@@ -181,6 +181,42 @@ function MiniStatisticsCard({ bgColor, icon, direction }) {
   return (
     <Card onClick={handleClick} style={{ cursor: "pointer" }}>
       <SoftBox bgColor={bgColor} variant="gradient">
+      {direction === "bottom" ? (
+        <SoftBox
+          p={2}
+          display="flex"
+          flexDirection="column"
+          alignItems="center"
+          justifyContent="center"
+        >
+          <SoftTypography
+            variant="button"
+            color={bgColor === "black" ? "text" : "black"}
+            opacity={bgColor === "white" ? 1 : 0.7}
+            textTransform="capitalize"
+            fontWeight={title.fontWeight}
+            align="center"
+          >
+            {title.text}
+          </SoftTypography>
+
+          <SoftBox
+            variant="gradient"
+            bgColor={bgColor === "white" ? iconColor : "white"}
+            color={bgColor === "white" ? "white" : "dark"}
+            width="3rem"
+            height="3rem"
+            borderRadius="md"
+            display="flex"
+            justifyContent="center"
+            alignItems="center"
+            shadow="md"
+            mb={1}
+          >
+            {iconComponent}
+          </SoftBox>
+        </SoftBox>
+      ) : (
         <SoftBox p={2}>
           <Grid container alignItems="center">
             {isLeft && (
@@ -204,7 +240,7 @@ function MiniStatisticsCard({ bgColor, icon, direction }) {
 
             <Grid item xs={isRight ? 8 : true}>
               <SoftBox ml={isLeft ? 2 : 0} lineHeight={1}>
-                {/* <SoftTypography
+                 <SoftTypography
                   variant="button"
                   color={bgColor === "black" ? "text" : "black"}
                   opacity={bgColor === "white" ? 1 : 0.7}
@@ -212,21 +248,21 @@ function MiniStatisticsCard({ bgColor, icon, direction }) {
                   fontWeight={title.fontWeight}
                 >
                   {title.text}
-                </SoftTypography> */}
+                </SoftTypography> 
 
                 <SoftTypography
                   variant="h5"
                   fontWeight="bold"
                   color={bgColor === "black" ? "dark" : "black"}
                 >
-                  {/* {count}{" "}
+                  {/* {count}{" "}*/}
                   <SoftTypography
                     variant="button"
                     color={percentage?.color || "success"}
                     fontWeight="bold"
                   >
                   {percentage?.text || ""}
-                  </SoftTypography> */}
+                  </SoftTypography> 
                 </SoftTypography>
               </SoftBox>
             </Grid>
@@ -251,6 +287,7 @@ function MiniStatisticsCard({ bgColor, icon, direction }) {
             )}
           </Grid>
         </SoftBox>
+        )}
       </SoftBox>
     </Card>
   );
@@ -258,14 +295,14 @@ function MiniStatisticsCard({ bgColor, icon, direction }) {
 
 MiniStatisticsCard.defaultProps = {
   bgColor: "white",
-  //title: {
-    //fontWeight: "medium",
-    //text: "",
-  //},
-  //percentage: {
-    //color: "success",
-    //text: "",
-  //},
+  title: {
+    fontWeight: "medium",
+    text: "",
+  },
+  percentage: {
+    color: "success",
+    text: "",
+  },
   direction: "right",
   icon: {
     color: "primary", // default color
