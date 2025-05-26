@@ -13,7 +13,7 @@ Coded by www.creative-tim.com
 * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 */
 
-import { useMemo } from "react";
+import { useMemo, useNavigate} from "react";
 
 // porp-types is a library for typechecking of props
 import PropTypes from "prop-types";
@@ -25,11 +25,11 @@ import { Doughnut } from "react-chartjs-2";
 import Card from "@mui/material/Card";
 
 // Soft UI Dashboard React components
-import SoftBox from "components/SoftBox";
-import SoftTypography from "components/SoftTypography";
+import SoftBox from "../../../../components/SoftBox";
+import SoftTypography from "../../../../components/SoftTypography";
 
 // DefaultDoughnutChart configurations
-import configs from "examples/Charts/DoughnutCharts/DefaultDoughnutChart/configs";
+import configs from "../DefaultDoughnutChart/configs";
 
 function DefaultDoughnutChart({ title, description, height, chart }) {
   const { data, options } = configs(chart.labels || [], chart.datasets || {}, chart.cutout);
@@ -61,7 +61,19 @@ function DefaultDoughnutChart({ title, description, height, chart }) {
     </SoftBox>
   );
 
-  return title || description ? <Card>{renderChart}</Card> : renderChart;
+  //return title || description ? <Card>{renderChart}</Card> : renderChart;
+  return (
+    <Card>
+      <SoftBox p={3}>
+        <SoftTypography variant="h5" textAlign="center" mb={2}>
+          {title}
+        </SoftTypography>
+        <SoftBox height={height}>
+          <Doughnut data={chart.data} options={chart.options} />
+        </SoftBox>
+      </SoftBox>
+    </Card>
+  );
 }
 
 // Setting default values for the props of DefaultDoughnutChart

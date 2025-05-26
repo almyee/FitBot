@@ -1,7 +1,7 @@
 // need to have `npm run start` running in terminal #1, have `node server.js` running in termimal #2 (in backend/config/) -> then can see dashboard with backend connected
 import React, { useEffect, useState } from "react";
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import { DirectionsRun } from '@mui/icons-material';
+import {DirectionsRun} from '@mui/icons-material';
 import SoftBox from "../components/SoftBox";
 import SoftTypography from "../components/SoftTypography";
 import DashboardNavbar from "../examples/Navbars/DashboardNavbar";
@@ -47,6 +47,7 @@ function Dashboard() {
               component: <DirectionsRun fontSize="large" />,
             }} 
             direction="bottom"
+            navigateTo="/select-exercise"
           />
 
 
@@ -59,6 +60,7 @@ function Dashboard() {
                 component: <SoftBox style={{ transform: "rotate(-90deg)" }}><i className="fas fa-shoe-prints fa-lg" /></SoftBox>
               }}
             direction="bottom" 
+            navigateTo="/step-count"
           />
 
           <MiniStatisticsCard
@@ -70,6 +72,7 @@ function Dashboard() {
               component: <i className="fa-solid fa-list-check fa-lg"/>
             }}
             direction="bottom"
+            navigateTo="/goals"
           />
 
           <MiniStatisticsCard
@@ -80,6 +83,7 @@ function Dashboard() {
               component: <i class="fa-solid fa-glass-water-droplet fa-lg"/>
             }}
             direction="bottom"
+            navigateTo="water-intake"
           />
         </SoftBox>
 

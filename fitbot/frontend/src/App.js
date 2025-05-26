@@ -50,6 +50,7 @@ import Settings from "./pages/Settings";
 import SignUp from "./pages/Signup";
 import DashboardNavbar from "./examples/Navbars/DashboardNavbar";  // update import path if needed
 import SelectExercise from "./examples/Cards/StatisticsCards/MiniStatisticsCard/SelectExercise";
+import ShowSteps from "./examples/Cards/StatisticsCards/MiniStatisticsCard/ShowSteps";
 
 //./examples/Navbars/DashboardNavbar/index.js
 function App() {
@@ -62,6 +63,10 @@ function App() {
       <Route path="/settings" element={<Settings />} />
       <Route path="/" element={<Dashboard />} />
       <Route path="/select-exercise" element={<SelectExercise />} />
+      <Route path="/step-count" element={<ShowSteps />} />
+      {/*TEMP: IMPLEMENT THESE NOW */}
+      {/*<Route path="/goals" element={<ShowGoals />} />*/}
+      {/*<Route path="/water-intake" element={<ShowWaterIntake />} />*/}
       {/* Other routes */}
     </Routes>
     </>

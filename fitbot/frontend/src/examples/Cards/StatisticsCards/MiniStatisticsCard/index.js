@@ -163,20 +163,20 @@ import SoftBox from "../../../../components/SoftBox";
 import SoftTypography from "../../../../components/SoftTypography";
 
 //function MiniStatisticsCard({ bgColor, title, count, percentage, icon, direction }) {
-function MiniStatisticsCard({ bgColor, icon, title, percentage, direction }) {
+function MiniStatisticsCard({ bgColor, icon, title, direction, navigateTo}) {
   const navigate = useNavigate();
 
   // Default icon color if not provided
   const iconColor = icon?.color || "primary"; // default color if icon color is undefined
   const iconComponent = icon?.component ||  <Icon>help</Icon>; // default empty string if icon component is undefined
-
+ 
   //Navigates to a different page where user can log exercise activity
   const handleClick = () => {
-    navigate("/select-exercise"); // this should match your route
+    //navigate("/select-exercise"); // this should match your route
+    if (navigateTo) {
+      navigate(navigateTo);
+    }
   };
-
-  const isLeft = direction === "left";
-  const isRight = direction === "right";
 
   return (
     <Card onClick={handleClick} style={{ cursor: "pointer" }}>
@@ -188,6 +188,8 @@ function MiniStatisticsCard({ bgColor, icon, title, percentage, direction }) {
           flexDirection="column"
           alignItems="center"
           justifyContent="center"
+          width="6rem"
+          height= "6rem"
         >
           <SoftTypography
             variant="button"
@@ -211,83 +213,11 @@ function MiniStatisticsCard({ bgColor, icon, title, percentage, direction }) {
             justifyContent="center"
             alignItems="center"
             shadow="md"
-            mb={1}
           >
             {iconComponent}
           </SoftBox>
         </SoftBox>
-      ) : (
-        <SoftBox p={2}>
-          <Grid container alignItems="center">
-            {isLeft && (
-              <Grid item>
-                <SoftBox
-                  variant="gradient"
-                  bgColor={bgColor === "white" ? iconColor : "white"}
-                  color={bgColor === "white" ? "white" : "dark"}
-                  width="3rem"
-                  height="3rem"
-                  borderRadius="md"
-                  display="flex"
-                  justifyContent="center"
-                  alignItems="center"
-                  shadow="md"
-                >
-                  {iconComponent}
-                </SoftBox>
-              </Grid>
-            )}
-
-            <Grid item xs={isRight ? 8 : true}>
-              <SoftBox ml={isLeft ? 2 : 0} lineHeight={1}>
-                 <SoftTypography
-                  variant="button"
-                  color={bgColor === "black" ? "text" : "black"}
-                  opacity={bgColor === "white" ? 1 : 0.7}
-                  textTransform="capitalize"
-                  fontWeight={title.fontWeight}
-                >
-                  {title.text}
-                </SoftTypography> 
-
-                <SoftTypography
-                  variant="h5"
-                  fontWeight="bold"
-                  color={bgColor === "black" ? "dark" : "black"}
-                >
-                  {/* {count}{" "}*/}
-                  <SoftTypography
-                    variant="button"
-                    color={percentage?.color || "success"}
-                    fontWeight="bold"
-                  >
-                  {percentage?.text || ""}
-                  </SoftTypography> 
-                </SoftTypography>
-              </SoftBox>
-            </Grid>
-            {isRight && (
-              <Grid item xs={4}>
-                <SoftBox
-                  variant="gradient"
-                  bgColor={bgColor === "white" ? iconColor : "white"}
-                  color={bgColor === "white" ? "white" : "dark"}
-                  width="3rem"
-                  height="3rem"
-                  marginLeft="auto"
-                  borderRadius="md"
-                  display="flex"
-                  justifyContent="center"
-                  alignItems="center"
-                  shadow="md"
-                >
-                {iconComponent}
-                </SoftBox>
-              </Grid>
-            )}
-          </Grid>
-        </SoftBox>
-        )}
+      ): null}
       </SoftBox>
     </Card>
   );
@@ -308,9 +238,11 @@ MiniStatisticsCard.defaultProps = {
     color: "primary", // default color
     component:  <Icon>help</Icon>, // default icon (can be adjusted as necessary)
   },
+  navigateTo: null,
 };
 
 MiniStatisticsCard.propTypes = {
+  navigateTo: PropTypes.string,
   bgColor: PropTypes.oneOf([
     "white",
     "primary",

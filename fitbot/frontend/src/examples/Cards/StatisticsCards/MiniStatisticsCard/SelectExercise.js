@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Grid from "@mui/material/Grid";
-import { DirectionsRun, DirectionsBike, Pool} from '@mui/icons-material';
+import { DirectionsWalk, DirectionsRun, DirectionsBike, Pool} from '@mui/icons-material';
 import MiniStatisticsCard from "../MiniStatisticsCard";
 import SoftBox from "../../../../components/SoftBox";
 import SoftTypography from "../../../../components/SoftTypography";
@@ -8,13 +8,14 @@ import SoftInput from "../../../../components/SoftInput";
 import SoftButton from "../../../../components/SoftButton/SoftButtonRoot";
 
 const exercises = [
+  { id: "walking", title: "Walking", icon: { component:  <DirectionsWalk fontSize="large" /> } },
   { id: "running", title: "Running", icon: { component:  <DirectionsRun fontSize="large" /> } },
   { id: "cycling", title: "Cycling", icon: { component: <DirectionsBike fontSize="large" /> } },
   { id: "swimming", title: "Swimming", icon: { component: <Pool fontSize="large"  /> } },
   // Add more as needed
 ];
 
-export default function SelectExercisePage() {
+export default function SelectExercise() {
   const [selectedExercise, setSelectedExercise] = useState(null);
   const [activityData, setActivityData] = useState({
     duration: "",
