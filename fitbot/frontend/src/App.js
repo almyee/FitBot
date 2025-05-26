@@ -51,6 +51,8 @@ import SignUp from "./pages/Signup";
 import DashboardNavbar from "./examples/Navbars/DashboardNavbar";  // update import path if needed
 import SelectExercise from "./examples/Cards/StatisticsCards/MiniStatisticsCard/SelectExercise";
 import ShowSteps from "./examples/Cards/StatisticsCards/MiniStatisticsCard/ShowSteps";
+import ShowWaterIntake from "./examples/Cards/StatisticsCards/MiniStatisticsCard/ShowWaterIntake";
+import ShowGoals from "./examples/Cards/StatisticsCards/MiniStatisticsCard/ShowGoals";
 
 //./examples/Navbars/DashboardNavbar/index.js
 function App() {
@@ -64,9 +66,8 @@ function App() {
       <Route path="/" element={<Dashboard />} />
       <Route path="/select-exercise" element={<SelectExercise />} />
       <Route path="/step-count" element={<ShowSteps />} />
-      {/*TEMP: IMPLEMENT THESE NOW */}
-      {/*<Route path="/goals" element={<ShowGoals />} />*/}
-      {/*<Route path="/water-intake" element={<ShowWaterIntake />} />*/}
+      <Route path="/water-intake" element={<ShowWaterIntake />} />
+      <Route path="/goals" element={<ShowGoals />} />
       {/* Other routes */}
     </Routes>
     </>

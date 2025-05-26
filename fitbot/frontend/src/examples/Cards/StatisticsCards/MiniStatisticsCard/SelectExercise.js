@@ -8,10 +8,10 @@ import SoftInput from "../../../../components/SoftInput";
 import SoftButton from "../../../../components/SoftButton/SoftButtonRoot";
 
 const exercises = [
-  { id: "walking", title: "Walking", icon: { component:  <DirectionsWalk fontSize="large" /> } },
-  { id: "running", title: "Running", icon: { component:  <DirectionsRun fontSize="large" /> } },
-  { id: "cycling", title: "Cycling", icon: { component: <DirectionsBike fontSize="large" /> } },
-  { id: "swimming", title: "Swimming", icon: { component: <Pool fontSize="large"  /> } },
+  { id: "walking", title: "Walking", icon: <DirectionsWalk fontSize="large" /> },
+  { id: "running", title: "Running", icon: <DirectionsRun fontSize="large" /> },
+  { id: "cycling", title: "Cycling", icon: <DirectionsBike fontSize="large" /> },
+  { id: "swimming", title: "Swimming", icon: <Pool fontSize="large" /> },
   // Add more as needed
 ];
 
@@ -37,6 +37,11 @@ export default function SelectExercise() {
   return (
     <SoftBox p={6}>
       <h3>Select Exercise</h3>
+      {!selectedExercise && (
+        <SoftTypography variant="body2" color="text">
+          Click an exercise to log activity.
+        </SoftTypography>
+      )}
       <Grid container spacing={4}>
         {/* Left column: MiniStatisticsCards for each exercise */}
         <Grid item xs={12} md={4}>
@@ -48,7 +53,7 @@ export default function SelectExercise() {
                   icon={exercise.icon}
                   bgColor="white"
                   direction="right"
-                  onClick={() => setSelectedExercise(selectedExercise)}
+                  onClick={() => setSelectedExercise(exercise)}
                   // Added props to increase size
                   value={{ text: "" }}
                   description={{ text: "" }}
@@ -59,6 +64,7 @@ export default function SelectExercise() {
         </Grid>
 
         {/* Right column: form to input activity data */}
+        
         <Grid item xs={12} md={8}>
           {selectedExercise ? (
             <SoftBox bgColor="white" p={3} borderRadius="md" boxShadow="lg">
