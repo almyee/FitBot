@@ -11,9 +11,9 @@ We hope to empower users to track their progress and make well-informed decision
 Approach:
 - Use a real-world dataset with features such as age, weight, height, heart rate, workout type, workout duration, and steps to accurately calculate the user’s calories burned.
 - Improved formula 
-Full-Stack Web App:
-- Frontend: ReactJS
-- Backend: Flask/FastAPI 
-- Database: MongoDB
-
+Tech Stack (MERN):
+- MongoDB for your NoSQL database
+- Express.js for backend routing
+- React.js for the frontend
+- Node.js as the runtime environment for the backend
 
