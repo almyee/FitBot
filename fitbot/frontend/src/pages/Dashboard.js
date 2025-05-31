@@ -8,10 +8,16 @@ import DashboardNavbar from "../examples/Navbars/DashboardNavbar";
 import Footer from "../examples/Footer";
 import MiniStatisticsCard from "../examples/Cards/StatisticsCards/MiniStatisticsCard";
 import DefaultLineChart from "../examples/Charts/LineCharts/DefaultLineChart";
+import Select from "@mui/material/Select";
+import MenuItem from "@mui/material/MenuItem";
+import Grid from "@mui/material/Grid";
+import DefaultDoughnutChart from "../examples/Charts/DoughnutCharts/DefaultDoughnutChart";
+import configs from "../examples/Charts/DoughnutCharts/DefaultDoughnutChart/configs";
 
 function Dashboard() {
   const [data, setData] = useState(null);
   const [logData, setLogData] = useState(null);
+  const [selectedChart, setSelectedChart] = useState("steps");
 
   useEffect(() => {
     // Make a GET request to your backend API
@@ -28,6 +34,12 @@ function Dashboard() {
       .then((logs) => setLogData(logs))
       .catch((error) => console.error("Error fetching logs:", error));
   }, []);
+
+   const chartConfigs = {
+    steps: configs(["Taken", "Remaining"], { label: "Steps", data: [5000, 3000], backgroundColors: ["info", "light"] }, 70),
+    water: configs(["Drank", "Remaining"], { label: "Water", data: [5, 3], backgroundColors: ["primary", "light"] }, 70),
+    calories: configs(["Burned", "Remaining"], { label: "Calories", data: [1500, 500], backgroundColors: ["warning", "light"] }, 70),
+  };
   
   return (
     <>
@@ -43,7 +55,7 @@ function Dashboard() {
             //count="0"
             percentage={{ color: "success", text: "" }}
             icon={{
-              color: "info",
+              color: "successfkwoe",
               component: <DirectionsRun fontSize="large" />,
             }} 
             direction="bottom"
@@ -87,41 +99,36 @@ function Dashboard() {
           />
         </SoftBox>
 
-        {/* Example line chart */}
-        {/* <SoftBox mt={4}>
-          <DefaultLineChart
-            title="Example Line Chart"
-            description="This is an example of a line chart with no data yet."
-            chart={{
-              labels: ["Mon", "Tue", "Wed", "Thu", "Fri"],
-              datasets: [
-                {
-                  label: "Sample Data",
-                  data: [0, 0, 0, 0, 0],
-                  color: "info",
-                },
-              ],
-            }}
-          />
-        </SoftBox> */}
-        <SoftBox mt={4}>
-          <DefaultLineChart
-            title="Workout Duration Over Time"
-            description="Logged workout durations from the database"
-            chart={{
-              labels: logData?.map((entry) =>
-                new Date(entry.timestamp).toLocaleDateString()
-              ) || [],
-              datasets: [
-                {
-                  label: "Duration (minutes)",
-                  data: logData?.map((entry) => entry.duration) || [],
-                  color: "info",
-                },
-              ],
-            }}
-          />
+        {/* Donut Chart Dropdown Section */}
+        <SoftBox mt={6}>
+          <SoftTypography variant="h5" mb={2}>Select a Metric to Display</SoftTypography>
+          <SoftBox mb={2} width="200px">
+            <Select
+              value={selectedChart}
+              onChange={(e) => setSelectedChart(e.target.value)}
+              fullWidth
+            >
+              <MenuItem value="steps">Steps</MenuItem>
+              <MenuItem value="water">Water Intake</MenuItem>
+              <MenuItem value="calories">Calories Burned</MenuItem>
+            </Select>
+          </SoftBox>
+
+          <Grid container spacing={3}>
+            <Grid item xs={12} md={6}>
+             <DefaultDoughnutChart
+                title={chartConfigs[selectedChart].data.datasets?.[0]?.label || "Progress Overview"}
+                description="Progress Overview"
+                chart={{
+                  data: chartConfigs[selectedChart].data,
+                  options: chartConfigs[selectedChart].options,
+                }}
+              />
+            </Grid>
+          </Grid>
         </SoftBox>
+
+{/*
         <div>
         {data ? (
           <div>{JSON.stringify(data)}</div>
@@ -129,6 +136,7 @@ function Dashboard() {
           <div>Loading...</div>
         )}
       </div>
+
       <div>
         {logData ? (
           <div>{JSON.stringify(logData)}</div>
@@ -136,6 +144,7 @@ function Dashboard() {
           <div>Loading...</div>
         )}
       </div>
+*/}
       </SoftBox>
       <Footer company={{ href: "https://yourcompany.com", name: "FitBot" }} />
     </>

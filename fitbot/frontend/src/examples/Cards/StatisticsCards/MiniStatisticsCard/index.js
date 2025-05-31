@@ -32,12 +32,9 @@ function  MiniStatisticsCard({ bgColor, icon, title, direction, navigateTo, logA
   const iconColor = icon?.color || "primary"; // default color if icon color is undefined
   const iconComponent = icon?.component ||  <Icon>help</Icon>; // default empty string if icon component is undefined
  
-  //Navigates to a different page where user can log exercise activity, OR
-  //Runs a custom function that shows a form in SelectExercise that shows form for user to log exercise health data
+  //Navigates to a different page where user can log exercise activity, 
   const handleClick = () => {
-  if (logActivity) {
-    logActivity(); // Use custom click behavior (e.g., show form)
-  } else if (navigateTo) {
+  if (navigateTo) {
     navigate(navigateTo); // Fallback to navigation if no onClick given
   }
 };
