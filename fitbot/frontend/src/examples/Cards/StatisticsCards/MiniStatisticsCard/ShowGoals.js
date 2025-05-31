@@ -1,10 +1,10 @@
-import React, {useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import PropTypes from "prop-types";
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
-import { Bar} from "react-chartjs-2";
+import { Bar } from "react-chartjs-2";
 import DefaultDoughnutChart from "../../../../examples/Charts/DoughnutCharts/DefaultDoughnutChart";
 import SoftBox from "../../../../components/SoftBox";
 import SoftTypography from "../../../../components/SoftTypography";
@@ -18,59 +18,113 @@ import {
   LinearScale,
   Tooltip,
   Legend,
-} from 'chart.js';
+} from "chart.js";
 
-ChartJS.register(
-  ArcElement,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  Tooltip,
-  Legend
-);
+ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
+function toLocalDate(dateString) {
+  const [year, month, day] = dateString.slice(0, 10).split("-").map(Number);
+  return { year, month: month - 1, day };
+}
 
-//HARD CODED VALUES HERE FOR NOW (Needs to be imported from MongoDB)
-//TODO: Replace with MongoDB data in the future
-const goalData = {
-  "Calories Burnt": {
-    today: "400 cal",
-    weekly: [200, 300, 400, 350, 450, 500, 400],
-    unit: "cal",
-    goalRemaining: "Need to burn 500 more calories.",
-  },
-  "Exercise Duration": {
-    today: "2 hours",
-    weekly: [1, 1.5, 2, 1.2, 2.5, 2, 1.7],
-    unit: "hours",
-    goalRemaining: "Exercise 3 more hours this week.",
-  },
-  "Steps Taken": {
-    today: "2,000",
-    weekly: [3000, 5000, 7000, 4000, 6000, 8000, 2000],
-    unit: "steps",
-    goalRemaining: "Take 8,000 more steps.",
-  },
-  "Distance Covered": {
-    today: "2.1 miles",
-    weekly: [1.2, 1.5, 2.3, 1.8, 2.5, 2.7, 2.1],
-    unit: "miles",
-    goalRemaining: "Walk 3 more miles.",
-  },
-  "Water Intake": {
-    today: "3 cups",
-    weekly: [2, 3, 4, 2, 3, 5, 3],
-    unit: "cups",
-    goalRemaining: "Drink 5 more cups today.",
-  },
-};
+function startOfWeek(date) {
+  const day = date.getDay();
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate() - day);
+}
 
 export default function ShowGoals() {
-  const today = new Date().toLocaleDateString();
+  const [logs, setLogs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [selectedGoal, setSelectedGoal] = useState("Calories Burnt");
 
+  useEffect(() => {
+    async function fetchLogs() {
+      try {
+        const response = await fetch("http://localhost:3001/activitylogs");
+        if (!response.ok) throw new Error("Failed to fetch logs");
+        const data = await response.json();
+        console.log("Fetched logs:", data);
+        const alyssaLogs = data.filter((log) => log.user === "alyssa");
+        console.log("Filtered logs for Alyssa:", alyssaLogs);
+        setLogs(alyssaLogs);
+      } catch (err) {
+        setError(err.message || "Unknown error");
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchLogs();
+  }, []);
+
+  const goals = useMemo(() => {
+    const today = new Date();
+    const todayYMD = { year: today.getFullYear(), month: today.getMonth(), day: today.getDate() };
+    const weekStart = startOfWeek(today);
+
+    const initial = {
+      "Calories Burnt": { todayVal: 0, weekly: Array(7).fill(0), unit: "cal" },
+      "Exercise Duration": { todayVal: 0, weekly: Array(7).fill(0), unit: "hours" },
+      "Steps Taken": { todayVal: 0, weekly: Array(7).fill(0), unit: "steps" },
+      "Distance Covered": { todayVal: 0, weekly: Array(7).fill(0), unit: "miles" },
+      "Water Intake": { todayVal: 0, weekly: Array(7).fill(0), unit: "cups" },
+    };
+
+    // Map goal display names to actual log keys
+    const keyMap = {
+      "Calories Burnt": "caloriesBurned",
+      "Exercise Duration": "duration",
+      "Steps Taken": "steps",
+      "Distance Covered": "distance",
+      "Water Intake": "waterIntake",
+    };
+
+    logs.forEach((log) => {
+      const { year, month, day } = toLocalDate(log.timestamp);
+      const logDate = new Date(year, month, day);
+      const isToday = year === todayYMD.year && month === todayYMD.month && day === todayYMD.day;
+      const isThisWeek = logDate >= weekStart && logDate <= today;
+      const weekday = logDate.getDay();
+
+      for (const goal of Object.keys(initial)) {
+        const key = keyMap[goal];
+        if (key && log[key] != null) {
+          const value = Number(log[key]) || 0;
+          console.log(`Goal: ${goal}, Key: ${key}, Log Value: ${log[key]}, Parsed Value: ${value}`);
+          if (isToday) initial[goal].todayVal += value;
+          if (isThisWeek) initial[goal].weekly[weekday] += value;
+        }
+      }
+    });
+
+    const goalDescriptions = {
+      "Calories Burnt": (v) => `Need to burn ${Math.max(0, 500 - v)} more calories.`,
+      "Exercise Duration": (v) => `Exercise ${Math.max(0, 5 - v).toFixed(1)} more hours this week.`,
+      "Steps Taken": (v) => `Take ${Math.max(0, 10000 - v)} more steps.`,
+      "Distance Covered": (v) => `Walk ${Math.max(0, 5 - v).toFixed(1)} more miles.`,
+      "Water Intake": (v) => `Drink ${Math.max(0, 6 - v)} more cups today.`,
+    };
+
+    const goalData = {};
+    for (const [goal, { todayVal, weekly, unit }] of Object.entries(initial)) {
+      const totalWeekly = goal === "Water Intake" ? todayVal : weekly.reduce((a, b) => a + b, 0);
+      goalData[goal] = {
+        today: `${todayVal} ${unit}`,
+        weekly,
+        unit,
+        goalRemaining: goalDescriptions[goal](totalWeekly),
+      };
+    }
+
+    console.log("Processed goals data: ", goalData);
+    return goalData;
+  }, [logs]);
+
+  const todayStr = new Date().toLocaleDateString();
+
   const chartData = useMemo(() => {
-    const goal = goalData[selectedGoal];
+    const goal = goals[selectedGoal] || { weekly: [] };
+    console.log(`Chart data for "${selectedGoal}": `, goal.weekly);
     return {
       labels: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
       datasets: [
@@ -82,7 +136,7 @@ export default function ShowGoals() {
         },
       ],
     };
-  }, [selectedGoal]);
+  }, [selectedGoal, goals]);
 
   const chartOptions = useMemo(() => ({
     responsive: true,
@@ -94,6 +148,9 @@ export default function ShowGoals() {
     },
   }), []);
 
+  if (loading) return <p>Loading goals...</p>;
+  if (error) return <p>Error: {error}</p>;
+
   return (
     <Grid container spacing={3}>
       {/* LEFT SIDE */}
@@ -101,10 +158,10 @@ export default function ShowGoals() {
         <Card>
           <SoftBox p={3}>
             <SoftTypography variant="h5" gutterBottom>
-              {today}
+              {todayStr}
             </SoftTypography>
             <List>
-              {Object.entries(goalData).map(([key, value]) => (
+              {Object.entries(goals).map(([key, value]) => (
                 <ListItemButton key={key} onClick={() => setSelectedGoal(key)}>
                   <SoftTypography variant="body1">
                     {`${key}: ${value.today}`}
@@ -119,17 +176,14 @@ export default function ShowGoals() {
           <Card>
             <SoftBox p={3}>
               <SoftTypography variant="h6" gutterBottom>
-                Remaining Goals
-              </SoftTypography>
-              <SoftTypography variant="body2" color="text">
-                {goalData[selectedGoal].goalRemaining}
+                {goals[selectedGoal]?.goalRemaining}
               </SoftTypography>
             </SoftBox>
           </Card>
         </SoftBox>
       </Grid>
 
-      {/* RIGHT SIDE */}
+      {/* RIGHT SIDE: Chart */}
       <Grid item xs={12} md={7}>
         <Card>
           <SoftBox p={3}>
@@ -143,9 +197,3 @@ export default function ShowGoals() {
     </Grid>
   );
 }
-
-ShowGoals.propTypes = {
-  currentSteps: PropTypes.number,
-  targetSteps: PropTypes.number,
-  weeklySteps: PropTypes.arrayOf(PropTypes.number),
-};
