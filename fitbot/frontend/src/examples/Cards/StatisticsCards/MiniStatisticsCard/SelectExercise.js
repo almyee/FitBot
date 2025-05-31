@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Grid from "@mui/material/Grid";
-import { DirectionsWalk, DirectionsRun, DirectionsBike, Pool} from '@mui/icons-material';
+import { DirectionsWalk, DirectionsRun, DirectionsBike, Pool, ConstructionOutlined} from '@mui/icons-material';
 import MiniStatisticsCard from "../MiniStatisticsCard";
 import SoftBox from "../../../../components/SoftBox";
 import SoftTypography from "../../../../components/SoftTypography";
@@ -11,12 +11,12 @@ const exercises = [
   { id: "walking", title: "Walking", icon: <DirectionsWalk fontSize="large" /> },
   { id: "running", title: "Running", icon: <DirectionsRun fontSize="large" /> },
   { id: "cycling", title: "Cycling", icon: <DirectionsBike fontSize="large" /> },
-  { id: "swimming", title: "Swimming", icon: <Pool fontSize="large" /> },
+  { id: "swimming", title: "Swimming", icon: <Pool fontSize="large" /> }
   // Add more as needed
 ];
 
 export default function SelectExercise() {
-  const [selectedExercise, setSelectedExercise] = useState(null);
+  const [selectedExercise, setSelectedExercise] = useState("default");
   const [activityData, setActivityData] = useState({
     duration: "",
     heartRate: "",
@@ -33,31 +33,39 @@ export default function SelectExercise() {
     console.log("Activity Data:", activityData);
     // Save or send data to backend
   };
+  
+  const logExercise = () => {
+    console.log("inside here")
+    // setSelectedExercise(exerciseId);
+    // console.log(selectedExercise);
+  }
 
   return (
     <SoftBox p={6}>
       <h3>Select Exercise</h3>
-      {!selectedExercise && (
+      {/* <h3>{selectedExercise?.title}</h3> */}
+      {selectedExercise && (
         <SoftTypography variant="body2" color="text">
           Click an exercise to log activity.
         </SoftTypography>
       )}
+
       <Grid container spacing={4}>
         {/* Left column: MiniStatisticsCards for each exercise */}
         <Grid item xs={12} md={4}>
           <Grid container direction="column" spacing={4}>
             {exercises.map((exercise) => (
               <Grid item key={exercise.id}>
-                <MiniStatisticsCard
-                  title={{ text: exercise.title, fontWeight: "bold"}}
-                  icon={exercise.icon}
-                  bgColor="white"
-                  direction="right"
-                  onClick={() => setSelectedExercise(exercise)}
-                  // Added props to increase size
-                  value={{ text: "" }}
-                  description={{ text: "" }}
-                />
+                <div onClick={() => setSelectedExercise(exercise)} style={{ cursor: "pointer" }}>
+                  <MiniStatisticsCard
+                    title={{ text: exercise.title, fontWeight: "bold" }}
+                    icon={{ component: exercise.icon }}
+                    bgColor="white"
+                    direction="bottom"
+                    value={{ text: "" }}
+                    description={{ text: "" }}
+                  />
+                </div>
               </Grid>
             ))}
           </Grid>
@@ -66,14 +74,15 @@ export default function SelectExercise() {
         {/* Right column: form to input activity data */}
         
         <Grid item xs={12} md={8}>
+          {/* <div>test</div> */}
           {selectedExercise ? (
             <SoftBox bgColor="white" p={3} borderRadius="md" boxShadow="lg">
               <SoftBox mb={2}>
-                <h3>Log Activity: {selectedExercise.title}</h3>
+                <h3>Log {selectedExercise.title} Activity:</h3>
               </SoftBox>
-              <SoftBox mb={2}>
+              {/* <SoftBox mb={2}>
                 <SoftInput
-                  type="text"
+                  type="float"
                   name="duration"
                   placeholder="Duration (e.g. 30 mins)"
                   value={activityData.duration}
@@ -83,7 +92,7 @@ export default function SelectExercise() {
       
               <SoftBox mb={2}>
                 <SoftInput
-                  type="text"
+                  type="float"
                   name="heartRate"
                   placeholder="Heart Rate (bpm)"
                   value={activityData.heartRate}
@@ -93,7 +102,7 @@ export default function SelectExercise() {
 
               <SoftBox mb={2}>
                 <SoftInput
-                  type="text"
+                  type="float"
                   name="steps"
                   placeholder="Steps"
                   value={activityData.steps}
@@ -103,8 +112,8 @@ export default function SelectExercise() {
 
               <SoftButton color="info" onClick={handleSubmit}>
                 Submit Activity
-              </SoftButton>
-            </SoftBox>
+              </SoftButton>*/}
+            </SoftBox> 
           ) : null}
         </Grid>
       </Grid>
