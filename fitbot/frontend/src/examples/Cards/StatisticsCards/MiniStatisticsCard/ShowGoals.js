@@ -74,8 +74,8 @@ export default function ShowGoals() {
     const keyMap = {
       "Calories Burnt": "caloriesBurned",
       "Exercise Duration": "duration",
-      "Steps Taken": "steps",
-      "Distance Covered": "distance",
+      "Steps Taken": "stepCount",
+      "Distance Covered": "distanceCovered",
       "Water Intake": "waterIntake",
     };
 

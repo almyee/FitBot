@@ -141,13 +141,15 @@ async function main(){
       // await  listDatabases(client);
       await createActivtyLog(client, {
         user: "alyssa",
-        action: "jump rope",
+        action: "swimming",
         workoutType: "cardio",
         duration: "30",
-        timestamp: "2025-05-30T05:00:00.000+00:00",
-        intensity: "hard",
-        caloriesBurned: 240,
-        waterIntake: 5
+        timestamp: "2025-05-28T05:00:00.000+00:00",
+        intensity: "easy",
+        caloriesBurned: 100,
+        waterIntake: 5,
+        stepCount: 9000,
+        distanceCovered: 6
       })
       // await createMultipleActivtyLogs(client, [
       //   {
