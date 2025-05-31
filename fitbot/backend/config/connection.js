@@ -144,9 +144,10 @@ async function main(){
         action: "jump rope",
         workoutType: "cardio",
         duration: "30",
-        timestamp: "2019-02-16T05:00:00.000+00:00",
+        timestamp: "2025-05-30T05:00:00.000+00:00",
         intensity: "hard",
-        caloriesBurned: 240
+        caloriesBurned: 240,
+        waterIntake: 5
       })
       // await createMultipleActivtyLogs(client, [
       //   {
