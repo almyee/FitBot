@@ -88,17 +88,18 @@ const fetchLogs = useCallback(async () => {
     const userResponse = await fetch("http://localhost:3001/users");
     if (!userResponse.ok) throw new Error("Failed to fetch users");
     const users = await userResponse.json();
-    console.log(users)
+    // console.log(users)
+    console.log("users =", users);
     const logsResponse = await fetch("http://localhost:3001/activitylogs");
     if (!logsResponse.ok) throw new Error("Failed to fetch logs");
+    console.log("logs: ", logsResponse)
     const logsData = await logsResponse.json();
-
+    console.log("logsData: ", logsData)
     // Filter logs where some username includes the log.user string
-    const userLogs = logsData.filter((log) =>
-      users.some((user) => user.username.toLowerCase().includes(log.user))
-    );
-
-    setLogs(userLogs);
+    // const userLogs = logsData.filter(log =>
+    //   log.user === log.username
+    // );
+    setLogs(logsData);
   } catch (err) {
     setError(err.message || "Unknown error");
   } finally {
@@ -112,7 +113,11 @@ const fetchLogs = useCallback(async () => {
   }, [fetchLogs]);
 
   const goals = useMemo(() => {
-    if (logs.length === 0) return {};
+    if (logs.length === 0){
+      console.log("logs length is 0")
+      return {};
+    }
+     
 
     const today = new Date();
     const todayYMD = { year: today.getFullYear(), month: today.getMonth(), day: today.getDate() };
