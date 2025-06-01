@@ -187,7 +187,7 @@ export default function ShowSteps() {
           data,
           fill: true,
           borderColor: "#2faa54",
-          backgroundColor: "rgb(152, 236, 46, 0.7)",
+          backgroundColor: "rgb(152, 236, 46, 0.4)",
           tension: 0.3,
           pointRadius: 3,
           pointHoverRadius: 6,
@@ -195,7 +195,7 @@ export default function ShowSteps() {
           pointBorderColor: "#2faa54",
           segment: {
             borderColor: () => "#2faa54",
-            backgroundColor: () => "rgb(152, 236, 46, 0.7)",
+            backgroundColor: () => "rgb(152, 236, 46, 0.4)",
           },
         },
       ],

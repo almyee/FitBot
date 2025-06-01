@@ -47,7 +47,7 @@ function Dashboard() {
   }) || [];
 
   const stepsTaken = todayLogs.reduce((sum, log) => sum + Number(log.stepCount || 0), 0) / 100;
-  const waterDrank = todayLogs.reduce((sum, log) => sum + Number(log.waterIntake || 0), 0) / 10;
+  const waterDrank = todayLogs.reduce((sum, log) => sum + Number(log.waterIntake || 0), 0) / 8;
   const caloriesBurned = todayLogs.reduce((sum, log) => sum + Number(log.caloriesBurned || 0), 0)/ 10;
 
   console.log("doughnut stuff: ", stepsTaken, waterDrank, caloriesBurned)
@@ -68,8 +68,7 @@ function Dashboard() {
       data: [stepsTaken, Math.max(0, targetSteps - stepsTaken)],
       backgroundColors: ["success", "light"],
     },
-    //((stepsTaken / targetSteps) * 100).toFixed(1)
-    50,
+    70,
   ),
   water: configs(
     ["Drank", "Remaining"],
@@ -78,8 +77,7 @@ function Dashboard() {
       data: [waterDrank, Math.max(0, targetWater - waterDrank)],
       backgroundColors: ["info", "light"],
     },
-    //((waterDrank / targetWater) * 100).toFixed(1)
-    50,
+    70,
   ),
   calories: configs(
     ["Burned", "Remaining"],
@@ -88,8 +86,7 @@ function Dashboard() {
       data: [caloriesBurned, Math.max(0, targetCalories - caloriesBurned)],
       backgroundColors: ["primary", "light"],
     },
-    //((caloriesBurned / targetCalories) * 100).toFixed(1)
-    50,
+    70,
   ),
 };
 

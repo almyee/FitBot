@@ -107,8 +107,8 @@ export default function ShowWaterIntake() {
       }, 0);
   }, [logs, today]);
 
-  const targetCups = 6;
-  const percentage = ((totalCupsToday / targetCups) * 100).toFixed(1);
+  const targetCups = 8;
+  const percent = ((totalCupsToday / targetCups) * 100).toFixed(1);
 
   const doughnutChart = useMemo(() => {
     const labels = ["Cups Drank", "Remaining"];
@@ -210,7 +210,7 @@ export default function ShowWaterIntake() {
         label: "Water Intake (cups)",
         data,
         borderColor: "#1976d2",
-        backgroundColor: "rgba(25, 118, 210, 0.2)",
+        backgroundColor: "rgba(25, 118, 210, 0.4)",
         fill: true,
         tension: 0.3,
         pointRadius: 3,
@@ -292,7 +292,7 @@ export default function ShowWaterIntake() {
             {totalCupsToday.toFixed(1)}/{targetCups} cups
           </SoftTypography>
           <SoftTypography variant="caption" color="text">
-            {percentage}% of goal reached
+            {percent}% of goal reached
           </SoftTypography>
         </SoftBox>
       </Grid>

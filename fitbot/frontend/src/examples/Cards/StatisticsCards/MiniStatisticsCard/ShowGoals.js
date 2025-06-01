@@ -91,7 +91,8 @@ export default function ShowGoals() {
       const logsResponse = await fetch("http://localhost:3001/activitylogs");
       if (!logsResponse.ok) throw new Error("Failed to fetch logs");
       const logsData = await logsResponse.json();
-      setLogs(logsData);
+      const alyssaLogs = logsData.filter((log) => log.user === "alyssa");
+      setLogs(alyssaLogs);
     } catch (err) {
       setError(err.message || "Unknown error");
     } finally {
@@ -109,6 +110,8 @@ export default function ShowGoals() {
     }
 
     const today = new Date();
+    today.setHours(23, 59, 59, 999); 
+
     const todayYMD = {
       year: today.getFullYear(),
       month: today.getMonth(),
@@ -127,6 +130,8 @@ export default function ShowGoals() {
     logs.forEach((log) => {
       const { year, month, day } = toLocalDate(log.timestamp);
       const logDate = new Date(year, month, day);
+      
+
       const isToday =
         year === todayYMD.year && month === todayYMD.month && day === todayYMD.day;
       const isThisWeek = logDate >= weekStart && logDate <= today;
@@ -230,6 +235,7 @@ export default function ShowGoals() {
     )) {
       const totalWeekly =
         goal === "Water Intake" ? todayVal : weekly.reduce((a, b) => a + b, 0);
+
       const message =
         goal === "Calories Burnt"
           ? goalRemainingMessages[goal](null, todayVal)
@@ -279,8 +285,8 @@ export default function ShowGoals() {
         {
           label: `${selectedGoal} - Last 30 Days`,
           data: goal.monthly,
-          borderColor: "#f44336",
-          backgroundColor: "rgba(244, 67, 54, 0.2)",
+          borderColor: "#42a5f5",
+          backgroundColor: "rgba(66, 165, 245, 0.4)",
           fill: true,
           tension: 0.3,
           pointRadius: 2,
