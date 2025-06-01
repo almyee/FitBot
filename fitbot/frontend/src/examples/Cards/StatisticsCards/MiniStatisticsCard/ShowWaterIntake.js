@@ -151,7 +151,7 @@ export default function ShowWaterIntake() {
     },
   };
 
-  if (loading) return <p>Loading Alyssa's water intake logs...</p>;
+ // if (loading) return <p>Loading Alyssa's water intake logs...</p>;
   if (error) return <p>Error: {error}</p>;
 
   return (

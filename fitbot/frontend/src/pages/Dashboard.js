@@ -17,7 +17,7 @@ import configs from "../examples/Charts/DoughnutCharts/DefaultDoughnutChart/conf
 function Dashboard() {
   const [data, setData] = useState(null);
   const [logData, setLogData] = useState(null);
-  const [selectedChart, setSelectedChart] = useState("steps");
+  const [selectedCharts, setSelectedCharts] = useState(["steps"]);
 
   useEffect(() => {
     // Make a GET request to your backend API
@@ -35,20 +35,26 @@ function Dashboard() {
       .catch((error) => console.error("Error fetching logs:", error));
   }, []);
 
-   const chartConfigs = {
-    steps: configs(["Taken", "Remaining"], { label: "Steps", data: [5000, 8000], backgroundColors: ["success", "light"] }, 70),
-    water: configs(["Drank", "Remaining"], { label: "Water", data: [3, 6], backgroundColors: ["info", "light"] }, 70),
-    calories: configs(["Burned", "Remaining"], { label: "Calories", data: [500, 1500], backgroundColors: ["primary", "light"] }, 70),
+  const handleChartChange = (e) => {
+  const value = e.target.value;
+  setSelectedCharts(typeof value === "string" ? value.split(",") : value);
   };
-  
 
-  //Values for Doughnut Chart Display (on the Bottom)
-  const current = chartConfigs[selectedChart].data.datasets[0].data[0];
-  const remaining = chartConfigs[selectedChart].data.datasets[0].data[1];
-  const total = current + remaining;
-  const percent = ((current / total) * 100).toFixed(1);
-  
-
+   const chartConfigs = {
+    steps: configs(
+      ["Taken", "Remaining"], 
+      { label: "Steps", data: [5000, 8000], backgroundColors: ["success", "light"] }, 
+      70
+    ),
+    water: configs(
+      ["Drank", "Remaining"], 
+      { label: "Water", data: [3, 6], backgroundColors: ["info", "light"] }, 
+      70),
+    calories: configs(
+      ["Burned", "Remaining"], 
+      { label: "Calories", data: [500, 1500], backgroundColors: ["primary", "light"] }, 
+      70),
+  };
   
   return (
     <>
@@ -107,14 +113,19 @@ function Dashboard() {
             navigateTo="water-intake"
           />
         </SoftBox>
-
-        {/* Donut Chart Dropdown Section */}
+        
+        {/* Donut Charts Section */}
         <SoftBox mt={6}>
-          <SoftTypography variant="h5" mb={2}>Select a Metric to Display</SoftTypography>
-          <SoftBox mb={2} width="200px">
+          <SoftTypography variant="h4" mb={3}>
+            Select Metrics to Display
+          </SoftTypography>
+
+        {/* Dropdown Menu */}
+          <SoftBox mb={3} width="300px">
             <Select
-              value={selectedChart}
-              onChange={(e) => setSelectedChart(e.target.value)}
+              multiple
+              value={selectedCharts}
+              onChange={handleChartChange}
               fullWidth
             >
               <MenuItem value="steps">Steps</MenuItem>
@@ -123,51 +134,44 @@ function Dashboard() {
             </Select>
           </SoftBox>
 
+        {/* Rows of Doughnut Charts */}
           <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
-             <DefaultDoughnutChart
-               title={chartConfigs[selectedChart].data.datasets?.[0]?.label || "Progress Overview"}
-                height="25rem"
-                chart={{
-                  data: chartConfigs[selectedChart].data,
-                  options: chartConfigs[selectedChart].options,
-                }}
-              />
-            </Grid>
+            {selectedCharts.map((metric) => {
+              const config = chartConfigs[metric];
+              const current = config.data.datasets[0].data[0];
+              const remaining = config.data.datasets[0].data[1];
+              const total = current + remaining;
+              const percentage = ((current / total) * 100).toFixed(1);
+
+              let unit = "";
+              if (metric === "steps") unit = "steps";
+              else if (metric === "water") unit = "cups";
+              else if (metric === "calories") unit = "calories";
+
+              return (
+                <Grid item xs={12} md={4} key={metric}>
+                  <SoftBox p={6} textAlign="center">
+                    <DefaultDoughnutChart
+                      title= {config.data.datasets?.[0]?.label || "Progress Overview"}
+                      description=""
+                      height="25rem"
+                      chart={{
+                        data: config.data,
+                        options: config.options,
+                      }}
+                    />
+                    <SoftTypography mt={2} variant="h6">
+                      {current} / {total} {unit}
+                    </SoftTypography>
+                    <SoftTypography variant="button" color="text" fontWeight="regular">
+                      {percentage}% complete
+                    </SoftTypography>
+                  </SoftBox>
+                </Grid>
+              );
+            })}
           </Grid>
         </SoftBox>
-
-        {selectedChart === "steps" && (
-          <>
-            <SoftTypography mt={2} variant="h6">
-              {current} / {total} steps
-            </SoftTypography>
-            <SoftTypography variant="button" color="text" fontWeight="regular">
-              {percent}% complete
-            </SoftTypography>
-          </>
-        )}
-        {selectedChart === "water" && (
-          <>
-            <SoftTypography mt={2} variant="h6">
-              {current} / {total} cups
-            </SoftTypography>
-            <SoftTypography variant="button" color="text" fontWeight="regular">
-              {percent}% complete
-            </SoftTypography>
-          </>
-        )}
-        {selectedChart === "calories" && (
-          <>
-            <SoftTypography mt={2} variant="h6">
-              {current} / {total} calories
-            </SoftTypography>
-            <SoftTypography variant="button" color="text" fontWeight="regular">
-              {percent}% complete
-            </SoftTypography>
-          </>
-        )}
-
 {/*
         <div>
         {data ? (
