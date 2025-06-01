@@ -144,10 +144,10 @@ async function main(){
         action: "swimming",
         workoutType: "cardio",
         duration: "30",
-        timestamp: "2025-05-28T05:00:00.000+00:00",
+        timestamp: "2025-05-31T05:00:00.000+00:05",
         intensity: "easy",
         caloriesBurned: 100,
-        waterIntake: 5,
+        waterIntake: "5.5",
         stepCount: 9000,
         distanceCovered: 6
       })

@@ -19,17 +19,24 @@ import {
 
 ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
-// NEW helper: parse date string as local date ignoring time/timezone
-function toLocalDate(dateString) {
-  // Use only YYYY-MM-DD part as local date (no timezone shift)
+function parseLocalDate(dateString) {
   const [year, month, day] = dateString.slice(0, 10).split("-").map(Number);
-  return { year, month: month - 1, day }; // JS months are zero-indexed
+  return new Date(year, month - 1, day);
 }
 
-// Helper: get Sunday of the week for a given date
-function startOfWeek(date) {
-  const day = date.getDay();
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate() - day);
+function getWeekStart(date) {
+  const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const day = d.getDay();
+  d.setDate(d.getDate() - day);
+  return d;
+}
+
+function isSameDay(d1, d2) {
+  return (
+    d1.getFullYear() === d2.getFullYear() &&
+    d1.getMonth() === d2.getMonth() &&
+    d1.getDate() === d2.getDate()
+  );
 }
 
 export default function ShowWaterIntake() {
@@ -44,7 +51,13 @@ export default function ShowWaterIntake() {
         if (!response.ok) throw new Error("Network response was not ok");
         const data = await response.json();
 
-        const alyssaLogs = data.filter((log) => log.user === "alyssa");
+        const alyssaLogs = data.filter((log) => {
+          const user = log.user || log["﻿user"]; // Handle invisible character
+          return user === "alyssa";
+        });
+
+        console.log("Fetched logs for Alyssa:", alyssaLogs);
+        console.log("Example keys in first log:", Object.keys(data[0]));
         setLogs(alyssaLogs);
       } catch (err) {
         setError(err.message || "Failed to fetch logs");
@@ -52,23 +65,32 @@ export default function ShowWaterIntake() {
         setLoading(false);
       }
     }
+
     fetchLogs();
   }, []);
 
-  // === TODAY'S DATE for pie chart ===
+  const today = useMemo(() => {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  }, []);
+
   const totalCupsToday = useMemo(() => {
     if (!logs.length) return 0;
 
-    const today = new Date();
-    const todayYMD = { year: today.getFullYear(), month: today.getMonth(), day: today.getDate() };
-
-    return logs
+    const total = logs
       .filter((log) => {
-        const { year, month, day } = toLocalDate(log.timestamp);
-        return year === todayYMD.year && month === todayYMD.month && day === todayYMD.day;
+        if (!log.timestamp) return false;
+        const logDate = parseLocalDate(log.timestamp);
+        return isSameDay(logDate, today);
       })
-      .reduce((sum, log) => sum + (log.waterIntake || 0), 0);
-  }, [logs]);
+      .reduce((sum, log) => {
+        const user = log.user || log["﻿user"];
+        if (user !== "alyssa") return sum;
+        return sum + Number(log.waterIntake || 0);
+      }, 0);
+
+    return total;
+  }, [logs, today]);
 
   const targetCups = 6;
   const percentage = ((totalCupsToday / targetCups) * 100).toFixed(1);
@@ -83,40 +105,41 @@ export default function ShowWaterIntake() {
     return configs(labels, datasets, 70);
   }, [totalCupsToday]);
 
-  // === WEEKLY DATA for bar chart ===
   const weeklyCups = useMemo(() => {
     if (!logs.length) return Array(7).fill(0);
 
-    const today = new Date();
-    const weekStart = startOfWeek(today); // Sunday of current week
-
-    // Initialize cups per day array, Sunday=0 to Saturday=6
+    const weekStart = getWeekStart(today);
     const cups = Array(7).fill(0);
 
     logs.forEach((log) => {
-      const { year, month, day } = toLocalDate(log.timestamp);
-      const logDate = new Date(year, month, day);
+      const user = log.user || log["﻿user"];
+      if (user !== "alyssa" || !log.timestamp) return;
 
+      const logDate = parseLocalDate(log.timestamp);
       if (logDate >= weekStart && logDate <= today) {
-        const weekday = logDate.getDay(); // 0=Sun ... 6=Sat
-        cups[weekday] += log.waterIntake || 0;
+        const dayIndex = logDate.getDay();
+        const intake = Number(log.waterIntake || 0);
+        cups[dayIndex] += intake;
       }
     });
 
     return cups;
-  }, [logs]);
+  }, [logs, today]);
 
-  const weeklyBarData = useMemo(() => ({
-    labels: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-    datasets: [
-      {
-        label: "Cups",
-        data: weeklyCups,
-        backgroundColor: "#42a5f5",
-        borderRadius: 4,
-      },
-    ],
-  }), [weeklyCups]);
+  const weeklyBarData = useMemo(
+    () => ({
+      labels: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+      datasets: [
+        {
+          label: "Cups",
+          data: weeklyCups,
+          backgroundColor: "#42a5f5",
+          borderRadius: 4,
+        },
+      ],
+    }),
+    [weeklyCups]
+  );
 
   const weeklyBarOptions = {
     responsive: true,
