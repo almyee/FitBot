@@ -22,7 +22,8 @@ export default function SelectExercise() {
   const [activityData, setActivityData] = useState({
     duration: "",
     heartRate: "",
-    steps: "",
+    stepCount: "",
+    distanceCovered: "", 
   });
 
   const handleInputChange = (e) => {
@@ -30,12 +31,52 @@ export default function SelectExercise() {
     setActivityData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = () => {
-    console.log("Submitting activity for:", selectedExercise);
-    console.log("Activity Data:", activityData);
-    setActivityData({ duration: "", heartRate: "", steps: "" });
-    setSelectedExercise("default");
+  // const handleSubmit = () => {
+  //   console.log("Submitting activity for:", selectedExercise);
+  //   console.log("Activity Data:", activityData);
+  //   setActivityData({ duration: "", heartRate: "", steps: "" });
+  //   setSelectedExercise("default");
+  // };
+
+  const handleSubmit = async () => {
+      if (!selectedExercise) return;
+
+      const payload = {
+        user: "alyssa", // adjust as needed
+        action: selectedExercise,
+        workoutType: "cardio",
+        duration: String(activityData.duration),
+        timestamp: new Date().toISOString(),
+        heartRate: String(activityData.heartRate),
+        stepCount: String(activityData.stepCount),
+        distanceCovered: String(activityData.distanceCovered),  
+      };
+
+      console.log("Created activity JSON:", payload); //DEBUG: Print to browser console
+
+      try {
+        const response = await fetch("http://localhost:3001/activitylogs", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to log activity");
+        }
+
+        console.log("Activity logged successfully!" , payload); //DEBUG: Print to browser console
+      } catch (error) {
+        console.error("Error submitting activity:", error.message);
+      }
+
+      // Reset form
+      setActivityData({ duration: "", heartRate: "", stepCount: "" });
+      setSelectedExercise("default");
   };
+
 
   const currentExercise = exercises.find((ex) => ex.id === selectedExercise);
 
@@ -85,6 +126,7 @@ export default function SelectExercise() {
 
             <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
               <Grid container spacing={2} direction="column">
+
                 <Grid item>
                   <TextField
                     type="number"
@@ -100,6 +142,7 @@ export default function SelectExercise() {
                     }}
                   />
                 </Grid>
+
                 <Grid item>
                   <TextField
                     type="number"
@@ -115,13 +158,14 @@ export default function SelectExercise() {
                     }}
                   />
                 </Grid>
+
                 <Grid item>
                   <TextField
                     type="number"
-                    label="Steps"
-                    name="steps"
+                    label="Steps Taken"
+                    name="stepCount"
                     fullWidth
-                    value={activityData.steps}
+                    value={activityData.stepCount}
                     onChange={handleInputChange}
                     InputLabelProps={{
                       sx: {
@@ -130,6 +174,23 @@ export default function SelectExercise() {
                     }}
                   />
                 </Grid>
+
+                <Grid item>
+                  <TextField
+                    type="float"
+                    label="Distance Covered (miles)"
+                    name="distanceCovered"
+                    fullWidth
+                    value={activityData.distanceCovered}
+                    onChange={handleInputChange}
+                    InputLabelProps={{
+                      sx: {
+                        fontSize: '0.8rem', // smaller label text
+                      },
+                    }}
+                  />
+                </Grid>
+                
                 <Grid item>
                   <Button variant="contained" color="primary" type="submit">
                     Submit Activity

@@ -60,6 +60,43 @@ app.get("/activitylogs", async (req, res) => {
     await client.close(); // optional but ensures clean exit
   }
 });
+
+app.post("/activitylogs", async (req, res) => {
+  const { user, action, workoutType, duration, timestamp, heartRate, stepCount, distanceCovered } = req.body;
+ 
+  if (!user || !action || !duration || !timestamp) {
+    return res.status(400).json({ success: false, message: "Missing required activity log fields" });
+  }
+
+  try {
+    await client.connect();
+    const db = client.db("fitbot"); // make sure this matches your DB name
+    const collection = db.collection("activitylogs");
+
+    const result = await collection.insertOne({
+      user,
+      action,
+      workoutType,
+      duration,
+      timestamp,
+      heartRate,
+      stepCount,
+      distanceCovered,
+    });
+
+    console.log("Activity log inserted:", result.insertedId);
+    res.status(201).json({ success: true, message: "Activity logged!", insertedId: result.insertedId });
+
+    console.log("Activity log inserted:", result.insertedId);
+    res.status(201).json({ success: true, message: "Activity logged!", insertedId: result.insertedId });
+  } catch (error) {
+    console.error("Error inserting activity log:", error);
+    res.status(500).json({ success: false, message: "Failed to log activity" });
+  } finally {
+    await client.close(); // Optional: remove this if you're keeping the connection open globally
+  }
+});
+
 // app.post("/logs/sample", async (req, res) => {
 //     try {
 //       const log = new ActivityLog({
