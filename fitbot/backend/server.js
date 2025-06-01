@@ -86,9 +86,6 @@ app.post("/activitylogs", async (req, res) => {
 
     console.log("Activity log inserted:", result.insertedId);
     res.status(201).json({ success: true, message: "Activity logged!", insertedId: result.insertedId });
-
-    console.log("Activity log inserted:", result.insertedId);
-    res.status(201).json({ success: true, message: "Activity logged!", insertedId: result.insertedId });
   } catch (error) {
     console.error("Error inserting activity log:", error);
     res.status(500).json({ success: false, message: "Failed to log activity" });
@@ -151,6 +148,33 @@ app.post("/updateUser", async (req, res) => {
   }
 });
 
+app.get("/users", async (req, res) => {
+  const { username } = req.query;
+
+  try {
+    await client.connect();
+    const db = client.db("fitbot");
+    const collection = db.collection("users");
+
+    let result;
+    if (username) {
+      result = await collection.findOne({ username });
+      if (!result) {
+        return res.status(404).json({ success: false, message: "User not found" });
+      }
+    } else {
+      console.log("got users")
+      result = await collection.find({}).toArray();
+    }
+
+    res.json({ success: true, data: result });
+  } catch (error) {
+    console.error("Error fetching user(s):", error);
+    res.status(500).json({ success: false, message: "Error fetching user(s)" });
+  } finally {
+    await client.close();
+  }
+});
 
 
 const authRoutes = require("./auth"); // adjust path if needed
