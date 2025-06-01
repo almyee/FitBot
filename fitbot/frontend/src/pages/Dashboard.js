@@ -36,10 +36,19 @@ function Dashboard() {
   }, []);
 
    const chartConfigs = {
-    steps: configs(["Taken", "Remaining"], { label: "Steps", data: [5000, 3000], backgroundColors: ["info", "light"] }, 70),
-    water: configs(["Drank", "Remaining"], { label: "Water", data: [5, 3], backgroundColors: ["primary", "light"] }, 70),
-    calories: configs(["Burned", "Remaining"], { label: "Calories", data: [1500, 500], backgroundColors: ["warning", "light"] }, 70),
+    steps: configs(["Taken", "Remaining"], { label: "Steps", data: [5000, 8000], backgroundColors: ["success", "light"] }, 70),
+    water: configs(["Drank", "Remaining"], { label: "Water", data: [3, 6], backgroundColors: ["info", "light"] }, 70),
+    calories: configs(["Burned", "Remaining"], { label: "Calories", data: [500, 1500], backgroundColors: ["primary", "light"] }, 70),
   };
+  
+
+  //Values for Doughnut Chart Display (on the Bottom)
+  const current = chartConfigs[selectedChart].data.datasets[0].data[0];
+  const remaining = chartConfigs[selectedChart].data.datasets[0].data[1];
+  const total = current + remaining;
+  const percent = ((current / total) * 100).toFixed(1);
+  
+
   
   return (
     <>
@@ -117,8 +126,8 @@ function Dashboard() {
           <Grid container spacing={3}>
             <Grid item xs={12} md={6}>
              <DefaultDoughnutChart
-                title={chartConfigs[selectedChart].data.datasets?.[0]?.label || "Progress Overview"}
-                description="Progress Overview"
+               title={chartConfigs[selectedChart].data.datasets?.[0]?.label || "Progress Overview"}
+                height="25rem"
                 chart={{
                   data: chartConfigs[selectedChart].data,
                   options: chartConfigs[selectedChart].options,
@@ -127,6 +136,37 @@ function Dashboard() {
             </Grid>
           </Grid>
         </SoftBox>
+
+        {selectedChart === "steps" && (
+          <>
+            <SoftTypography mt={2} variant="h6">
+              {current} / {total} steps
+            </SoftTypography>
+            <SoftTypography variant="button" color="text" fontWeight="regular">
+              {percent}% complete
+            </SoftTypography>
+          </>
+        )}
+        {selectedChart === "water" && (
+          <>
+            <SoftTypography mt={2} variant="h6">
+              {current} / {total} cups
+            </SoftTypography>
+            <SoftTypography variant="button" color="text" fontWeight="regular">
+              {percent}% complete
+            </SoftTypography>
+          </>
+        )}
+        {selectedChart === "calories" && (
+          <>
+            <SoftTypography mt={2} variant="h6">
+              {current} / {total} calories
+            </SoftTypography>
+            <SoftTypography variant="button" color="text" fontWeight="regular">
+              {percent}% complete
+            </SoftTypography>
+          </>
+        )}
 
 {/*
         <div>
