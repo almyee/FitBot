@@ -308,7 +308,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
     >
       <Toolbar sx={(theme) => navbarContainer(theme)}>
         <Link to="/" style={{ textDecoration: "none" }}>
-          <SoftTypography variant="h6" fontWeight="bold" color="primary">
+          <SoftTypography variant="h2" fontWeight="bold" color="primary">
             FitBot
           </SoftTypography>
         </Link>
@@ -326,16 +326,16 @@ function DashboardNavbar({ absolute, light, isMini }) {
               <IconButton
                 sx={{ ...navbarIconButton, display: "flex", alignItems: "center", gap: 0.5 }}
                 size="small"
-                onClick={handleSignInOut}  // ✅ use function instead of <Link>
+                onClick={handleSignInOut}  // use function instead of <Link>
               >
-                <SoftTypography variant="button" fontWeight="medium">
-                  {isLoggedIn ? "Sign Out" : "Sign In"}  {/* ✅ dynamic label */}
+                <SoftTypography variant="h5" fontWeight="medium">
+                  {isLoggedIn ? "Sign Out" : "Sign In"}  {/* dynamic label */}
                 </SoftTypography>
               </IconButton>
 
               <Link to="/settings">
                 <IconButton
-                  size="small"
+                  size="large"
                   color="inherit"
                   sx={navbarIconButton}
                 >
@@ -344,7 +344,7 @@ function DashboardNavbar({ absolute, light, isMini }) {
               </Link>
 
               <IconButton
-                size="small"
+                size="large"
                 color="inherit"
                 sx={navbarIconButton}
                 aria-controls="notification-menu"
