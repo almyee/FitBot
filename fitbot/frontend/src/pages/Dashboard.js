@@ -34,27 +34,58 @@ function Dashboard() {
       .then((logs) => setLogData(logs))
       .catch((error) => console.error("Error fetching logs:", error));
   }, []);
+  const today = new Date();
+  const todayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+
+  const todayLogs = logData?.filter((log) => {
+    const logDate = new Date(log.timestamp);
+    const logDateUTC = new Date(Date.UTC(logDate.getUTCFullYear(), logDate.getUTCMonth(), logDate.getUTCDate()));
+    return logDateUTC.getTime() === todayUTC.getTime();
+  }) || [];
+
+  const stepsTaken = todayLogs.reduce((sum, log) => sum + Number(log.stepCount || 0), 0) / 1000;
+  const waterDrank = todayLogs.reduce((sum, log) => sum + Number(log.waterIntake || 0), 0) / 10;
+  const caloriesBurned = todayLogs.reduce((sum, log) => sum + Number(log.caloriesBurned || 0), 0)/ 10;
+
+  console.log("doughnut stuff: ", stepsTaken, waterDrank, caloriesBurned)
+  const targetSteps = 8000;
+  const targetWater = 8;      // in cups
+  const targetCalories = 2000;
 
   const handleChartChange = (e) => {
   const value = e.target.value;
   setSelectedCharts(typeof value === "string" ? value.split(",") : value);
   };
+  const chartConfigs = {
+  steps: configs(
+    ["Taken", "Remaining"],
+    {
+      label: "Steps",
+      data: [stepsTaken, Math.max(0, targetSteps - stepsTaken)],
+      backgroundColors: ["success", "light"],
+    },
+    ((stepsTaken / targetSteps) * 100).toFixed(1)
+  ),
+  water: configs(
+    ["Drank", "Remaining"],
+    {
+      label: "Water",
+      data: [waterDrank, Math.max(0, targetWater - waterDrank)],
+      backgroundColors: ["info", "light"],
+    },
+    ((waterDrank / targetWater) * 100).toFixed(1)
+  ),
+  calories: configs(
+    ["Burned", "Remaining"],
+    {
+      label: "Calories",
+      data: [caloriesBurned, Math.max(0, targetCalories - caloriesBurned)],
+      backgroundColors: ["primary", "light"],
+    },
+    ((caloriesBurned / targetCalories) * 100).toFixed(1)
+  ),
+};
 
-   const chartConfigs = {
-    steps: configs(
-      ["Taken", "Remaining"], 
-      { label: "Steps", data: [5000, 8000], backgroundColors: ["success", "light"] }, 
-      70
-    ),
-    water: configs(
-      ["Drank", "Remaining"], 
-      { label: "Water", data: [3, 6], backgroundColors: ["info", "light"] }, 
-      70),
-    calories: configs(
-      ["Burned", "Remaining"], 
-      { label: "Calories", data: [500, 1500], backgroundColors: ["primary", "light"] }, 
-      70),
-  };
   
   return (
     <>
@@ -161,7 +192,7 @@ function Dashboard() {
                       }}
                     />
                     <SoftTypography mt={2} variant="h6">
-                      {current} / {total} {unit}
+                      {Math.round(current)} / {total} {unit}
                     </SoftTypography>
                     <SoftTypography variant="button" color="text" fontWeight="regular">
                       {percentage}% complete
