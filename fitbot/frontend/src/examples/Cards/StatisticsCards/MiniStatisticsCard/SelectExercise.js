@@ -19,6 +19,8 @@ const exercises = [
 
 export default function SelectExercise() {
   const [selectedExercise, setSelectedExercise] = useState("default");
+  const [submitMessage, setSubmitMessage] = useState("");
+
   const [activityData, setActivityData] = useState({
     duration: "",
     heartRate: "",
@@ -68,8 +70,23 @@ export default function SelectExercise() {
         }
 
         console.log("Activity logged successfully!" , payload); //DEBUG: Print to browser console
+        setSubmitMessage("✅ Activity Logged!");
+
+        //Wait 6 seconds before resetting the form
+        setTimeout(() => {
+          setActivityData({
+            duration: "",
+            heartRate: "",
+            stepCount: "",
+            distanceCovered: ""
+          });
+          setSelectedExercise("default");
+          setSubmitMessage(""); // Optionally clear message after hiding
+        }, 6000);
+
       } catch (error) {
         console.error("Error submitting activity:", error.message);
+        setSubmitMessage("❌ Error logging activity");
       }
 
       // Reset form
@@ -200,8 +217,17 @@ export default function SelectExercise() {
             </form>
           </Grid>
         )}
+
+        {/* Message Appears After Form Is Submitted Correctly*/}
+            {submitMessage && (
+              <h3 style={{ color: submitMessage.startsWith("✅") ? "green" : "red", marginTop: "2rem" }}>
+                {submitMessage}
+              </h3>
+        )}
+
       </Grid>
     </div>
+    
   );
 }
 
