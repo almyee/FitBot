@@ -3,6 +3,9 @@ import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
 import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
+import Typography from "@mui/material/Typography";
+import CircularProgress from "@mui/material/CircularProgress";
+import Alert from "@mui/material/Alert";
 import { Bar } from "react-chartjs-2";
 import SoftBox from "../../../../components/SoftBox";
 import SoftTypography from "../../../../components/SoftTypography";
@@ -20,28 +23,47 @@ import {
 ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
 function toLocalDate(dateString) {
+  // Parse yyyy-mm-dd from ISO string and return year, month (0-based), day
   const [year, month, day] = dateString.slice(0, 10).split("-").map(Number);
   return { year, month: month - 1, day };
 }
 
 function startOfWeek(date) {
+  // Return date of last Sunday
   const day = date.getDay();
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate() - day);
+  const newDate = new Date(date);
+  newDate.setDate(date.getDate() - day);
+  newDate.setHours(0, 0, 0, 0);
+  return newDate;
 }
 
-const MET_VALUES = {
-  running: 9.8,
-  walking: 3.5,
-  cycling: 7.5,
-  swimming: 8.0,
-  yoga: 2.5,
-  "weight lifting": 6.0,
-};
 
-function calculateCaloriesMET(activity, weight, duration) {
-  const key = activity.toLowerCase();
-  const MET = MET_VALUES[key] || 1;
-  return (MET * weight * duration) / 60;
+// Calculate calories burned using a heart rate based formula
+// gender: 1 for male, 0 for female (assumed)
+// age, weight (kg), VO2max, heartRate: numbers
+function calculateCaloriesHRBased({ gender, age, weight, VO2max, heartRate }) {
+  if (gender === 1) {
+    // Male
+    return (
+      -59.3954 +
+      gender *
+        (-36.3781 +
+          0.271 * age +
+          0.394 * weight +
+          0.404 * VO2max +
+          0.634 * heartRate)
+    );
+  } else {
+    // Female
+    return (
+      -59.3954 +
+      (1 - gender) *
+        (0.274 * age +
+          0.103 * weight +
+          0.380 * VO2max +
+          0.450 * heartRate)
+    );
+  }
 }
 
 const GOAL_CONFIG = {
@@ -59,6 +81,8 @@ export default function ShowGoals() {
   const [selectedGoal, setSelectedGoal] = useState("Calories Burnt");
 
   const fetchLogs = useCallback(async () => {
+    setLoading(true);
+    setError(null);
     try {
       const response = await fetch("http://localhost:3001/activitylogs");
       if (!response.ok) throw new Error("Failed to fetch logs");
@@ -83,6 +107,7 @@ export default function ShowGoals() {
     const todayYMD = { year: today.getFullYear(), month: today.getMonth(), day: today.getDate() };
     const weekStart = startOfWeek(today);
 
+    // Initialize goal data
     const initial = Object.fromEntries(
       Object.entries(GOAL_CONFIG).map(([label, { unit }]) => [
         label,
@@ -101,15 +126,45 @@ export default function ShowGoals() {
         let value = 0;
 
         if (goal === "Calories Burnt") {
-          const hasRequiredFields = log.action && log.weight && log.duration;
+          // Calculate calories using heart rate formula if data available
+          const hasRequiredFields =
+            log.gender != null &&
+            log.age != null &&
+            log.weight != null &&
+            log.vo2Max != null &&
+            log.heartRate != null;
           if (hasRequiredFields) {
-            value = calculateCaloriesMET(log.action, Number(log.weight), Number(log.duration));
+            value = calculateCaloriesHRBased({
+              gender: Number(log.gender),
+              age: Number(log.age),
+              weight: Number(log.weight),
+              VO2max: Number(log.vo2Max),
+              heartRate: Number(log.heartRate),
+            });
           } else if (log.caloriesBurned != null) {
             value = Number(log.caloriesBurned);
           }
+          value /= 30; // Normalize or scale calories (original logic)
         } else if (key && log[key] != null) {
           value = Number(log[key]) || 0;
-          if (goal === "Exercise Duration") value /= 60; // seconds to hours
+
+          // Adjust scaling based on goal type
+          switch (goal) {
+            case "Exercise Duration":
+              value = (value / 60) / 10; // seconds ➝ minutes ➝ scaled to hours
+              break;
+            case "Steps Taken":
+              value /= 100; // scale down steps
+              break;
+            case "Distance Covered":
+              value /= 50; // scale down distance
+              break;
+            case "Water Intake":
+              value /= 8; // ounces to cups
+              break;
+            default:
+              break;
+          }
         }
 
         if (value) {
@@ -119,6 +174,7 @@ export default function ShowGoals() {
       }
     });
 
+    // Messages for goals remaining
     const goalRemainingMessages = {
       "Calories Burnt": (_, todayVal) =>
         todayVal < GOAL_CONFIG["Calories Burnt"].target
@@ -182,6 +238,7 @@ export default function ShowGoals() {
       responsive: true,
       plugins: {
         legend: { display: false },
+        tooltip: { enabled: true },
       },
       scales: {
         y: { beginAtZero: true },
@@ -190,8 +247,13 @@ export default function ShowGoals() {
     []
   );
 
-  if (loading) return <p>Loading goals...</p>;
-  if (error) return <p>Error: {error}</p>;
+  if (loading)
+    return (
+      <Grid container justifyContent="center" alignItems="center" style={{ minHeight: 200 }}>
+        <CircularProgress />
+      </Grid>
+    );
+  if (error) return <Alert severity="error">Error: {error}</Alert>;
 
   return (
     <Grid container spacing={3}>
@@ -215,26 +277,21 @@ export default function ShowGoals() {
             </List>
           </SoftBox>
         </Card>
-
-        <SoftBox mt={3}>
-          <Card>
-            <SoftBox p={3}>
-              <SoftTypography variant="h6" gutterBottom>
-                {goals[selectedGoal]?.goalRemaining}
-              </SoftTypography>
-            </SoftBox>
-          </Card>
-        </SoftBox>
       </Grid>
 
-      {/* RIGHT SIDE: Chart */}
+      {/* RIGHT SIDE - Chart and Goal Remaining */}
       <Grid item xs={12} md={7}>
         <Card>
           <SoftBox p={3}>
             <SoftTypography variant="h6" gutterBottom>
-              Weekly Progress: {selectedGoal}
+              {selectedGoal} - Weekly Progress
             </SoftTypography>
             <Bar data={chartData} options={chartOptions} />
+            <SoftBox mt={2}>
+              <SoftTypography variant="body1" color="textSecondary">
+                {goals[selectedGoal]?.goalRemaining}
+              </SoftTypography>
+            </SoftBox>
           </SoftBox>
         </Card>
       </Grid>
