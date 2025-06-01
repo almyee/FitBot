@@ -202,7 +202,7 @@ const fetchLogs = useCallback(async () => {
           : "Congrats! You’ve reached your exercise duration goal.",
       "Steps Taken": (total) =>
         total < GOAL_CONFIG["Steps Taken"].target
-          ? `Take ${Math.max(0, GOAL_CONFIG["Steps Taken"].target - total)} more steps.`
+          ? `Take ${Math.round(Math.max(0, GOAL_CONFIG["Steps Taken"].target - total))} more steps.`
           : "Congrats! You’ve reached your step goal.",
       "Distance Covered": (total) =>
         total < GOAL_CONFIG["Distance Covered"].target
