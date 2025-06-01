@@ -58,7 +58,7 @@ export default function ShowSteps() {
     fetchLogs();
   }, []);
 
-const targetSteps = 100000; // Daily goal for doughnut chart
+const targetSteps = 10000; // Daily goal for doughnut chart
 
   const todayUTC = useMemo(() => {
     const now = new Date();
@@ -70,15 +70,17 @@ const targetSteps = 100000; // Daily goal for doughnut chart
     logs.forEach((log) => {
       const date = new Date(log.timestamp);
       const day = date.getDay(); // 0 = Sunday
-      steps[day] += log.stepCount || 0;
+      // steps[day] += Number(log.stepCount || 0);
+      steps[day] += Number(log.stepCount || 0) / 2500;
+
     });
     return steps;
   }, [logs]);
 
   const weeklyTotal = useMemo(() => {
-    return weeklySteps.reduce((sum, steps) => sum + steps, 0);
+    return weeklySteps.reduce((sum, steps) => sum +  Number(steps || 0), 0);
   }, [weeklySteps]);
-
+// todayLogs.reduce((sum, log) => sum + Number(log.stepCount || 0), 0);
   const percentage = ((weeklyTotal / targetSteps) * 100).toFixed(1);
 
 
@@ -88,6 +90,7 @@ const targetSteps = 100000; // Daily goal for doughnut chart
 
 const dailyTotal = useMemo(() => weeklySteps[todayDayIndex] || 0, [weeklySteps, todayDayIndex]);
 const currentSteps = dailyTotal
+console.log("dailyTotal: ", dailyTotal)
 const dailyPercentage = ((dailyTotal / targetSteps) * 100).toFixed(1);
 // console.log("daily total: , daily perc: ", dailyTotal, dailyPercentage)
 
@@ -141,7 +144,7 @@ const dailyPercentage = ((dailyTotal / targetSteps) * 100).toFixed(1);
         />
         <SoftBox mt={2} textAlign="center">
           <SoftTypography variant="h6">
-            {dailyTotal}/{targetSteps} steps
+            {Math.round(dailyTotal)}/{targetSteps} steps
           </SoftTypography>
           <SoftTypography variant="caption" color="text">
             {dailyPercentage}% of daily goal reached
