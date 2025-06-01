@@ -1,19 +1,45 @@
-// need to have `npm run start` running in terminal #1, have `node server.js` running in termimal #2 (in backend/config/) -> then can see dashboard with backend connected
 import React, { useEffect, useState } from "react";
 import '@fortawesome/fontawesome-free/css/all.min.css';
-import {DirectionsRun} from '@mui/icons-material';
-import SoftBox from "../components/SoftBox";
-import SoftTypography from "../components/SoftTypography";
+import { DirectionsRun } from '@mui/icons-material';
 import DashboardNavbar from "../examples/Navbars/DashboardNavbar";
 import Footer from "../examples/Footer";
-import MiniStatisticsCard from "../examples/Cards/StatisticsCards/MiniStatisticsCard";
-import DefaultLineChart from "../examples/Charts/LineCharts/DefaultLineChart";
+import DefaultDoughnutChart from "../examples/Charts/DoughnutCharts/DefaultDoughnutChart";
+import configs from "../examples/Charts/DoughnutCharts/DefaultDoughnutChart/configs";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import Grid from "@mui/material/Grid";
-import DefaultDoughnutChart from "../examples/Charts/DoughnutCharts/DefaultDoughnutChart";
-import configs from "../examples/Charts/DoughnutCharts/DefaultDoughnutChart/configs";
 
+function SquareCard({ title, icon, onClick }) {
+  return (
+    <div
+      onClick={onClick}
+      style={{
+        width: 250,
+        height: 250,
+        borderRadius: 16,
+        backgroundColor: "#f5f5f5",
+        boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "center",
+        alignItems: "center",
+        cursor: "pointer",
+        userSelect: "none",
+        transition: "box-shadow 0.3s ease",
+        margin: 8,
+      }}
+      onMouseEnter={e => e.currentTarget.style.boxShadow = "0 8px 16px rgba(0,0,0,0.2)"}
+      onMouseLeave={e => e.currentTarget.style.boxShadow = "0 4px 8px rgba(0,0,0,0.1)"}
+    >
+      <div style={{ fontSize: 56, marginBottom: 20, color: "#1976d2" }}>
+        {icon}
+      </div>
+      <div style={{ fontSize: 22, fontWeight: "600", color: "#333" }}>
+        {title}
+      </div>
+    </div>
+  );
+}
 
 function Dashboard() {
   const [data, setData] = useState(null);
@@ -21,7 +47,6 @@ function Dashboard() {
   const [selectedCharts, setSelectedCharts] = useState(["steps"]);
 
   useEffect(() => {
-    // Make a GET request to your backend API
     fetch("http://localhost:3001/summary")
       .then((response) => response.json())
       .then((message) => setData(message))
@@ -29,7 +54,6 @@ function Dashboard() {
   }, []);
 
   useEffect(() => {
-    // Fetch the logs from the backend
     fetch("http://localhost:3001/activitylogs")
       .then((response) => response.json())
       .then((logs) => setLogData(logs))
@@ -39,140 +63,104 @@ function Dashboard() {
   const today = new Date();
   const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
-  const todayLogs = logData?.filter((log) => {
+  const todayLogs = Array.isArray(logData)
+  ? logData.filter((log) => {
     const logDate = new Date(log.timestamp);
     const localDate = new Date(logDate.getFullYear(), logDate.getMonth(), logDate.getDate());
     return localDate.getTime() === todayDate.getTime();
-    
-  }) || [];
+  }) : [];
 
   const stepsTaken = todayLogs.reduce((sum, log) => sum + Number(log.stepCount || 0), 0) / 100;
   const waterDrank = todayLogs.reduce((sum, log) => sum + Number(log.waterIntake || 0), 0) / 10;
-  const caloriesBurned = todayLogs.reduce((sum, log) => sum + Number(log.caloriesBurned || 0), 0)/ 10;
+  const caloriesBurned = todayLogs.reduce((sum, log) => sum + Number(log.caloriesBurned || 0), 0) / 10;
 
-  console.log("doughnut stuff: ", stepsTaken, waterDrank, caloriesBurned)
   const targetSteps = 10000;
   const targetWater = 8;      // in cups
   const targetCalories = 2000;
 
   const handleChartChange = (e) => {
-  const value = e.target.value;
-  setSelectedCharts(typeof value === "string" ? value.split(",") : value);
+    const value = e.target.value;
+    setSelectedCharts(typeof value === "string" ? value.split(",") : value);
   };
-  
-  const chartConfigs = {
-  steps: configs(
-    ["Taken", "Remaining"],
-    {
-      label: "Steps",
-      data: [stepsTaken, Math.max(0, targetSteps - stepsTaken)],
-      backgroundColors: ["success", "light"],
-    },
-    //((stepsTaken / targetSteps) * 100).toFixed(1)
-    50,
-  ),
-  water: configs(
-    ["Drank", "Remaining"],
-    {
-      label: "Water",
-      data: [waterDrank, Math.max(0, targetWater - waterDrank)],
-      backgroundColors: ["info", "light"],
-    },
-    //((waterDrank / targetWater) * 100).toFixed(1)
-    50,
-  ),
-  calories: configs(
-    ["Burned", "Remaining"],
-    {
-      label: "Calories",
-      data: [caloriesBurned, Math.max(0, targetCalories - caloriesBurned)],
-      backgroundColors: ["primary", "light"],
-    },
-    //((caloriesBurned / targetCalories) * 100).toFixed(1)
-    50,
-  ),
-};
 
-  
+  const chartConfigs = {
+    steps: configs(
+      ["Taken", "Remaining"],
+      {
+        label: "Steps",
+        data: [stepsTaken, Math.max(0, targetSteps - stepsTaken)],
+        backgroundColors: ["success", "light"],
+      },
+      50,
+    ),
+    water: configs(
+      ["Drank", "Remaining"],
+      {
+        label: "Water",
+        data: [waterDrank, Math.max(0, targetWater - waterDrank)],
+        backgroundColors: ["info", "light"],
+      },
+      50,
+    ),
+    calories: configs(
+      ["Burned", "Remaining"],
+      {
+        label: "Calories",
+        data: [caloriesBurned, Math.max(0, targetCalories - caloriesBurned)],
+        backgroundColors: ["primary", "light"],
+      },
+      50,
+    ),
+  };
+
   return (
     <>
-      <SoftBox p={2}>
-        <SoftTypography variant="h4" mb={2}>
-          Dashboard
-        </SoftTypography>
+      <div style={{ padding: 16 }}>
+        <h4 style={{ marginBottom: 16 }}></h4>
 
-        {/* Statistics Cards */}
-        <SoftBox display="flex" justifyContent="space-between" flexWrap="wrap" gap={2}>
-          <MiniStatisticsCard
-            title={{ text: "Exercise" }}
-            //count="0"
-            percentage={{ color: "success", text: "" }}
-            icon={{
-              color: "successfkwoe",
-              component: <DirectionsRun fontSize="large" />,
-            }} 
-            direction="bottom"
-            navigateTo="/select-exercise"
+        {/* Cards container */}
+        <div style={{
+          display: "flex",
+          justifyContent: "space-around",
+          flexWrap: "wrap",
+          gap: 16,
+        }}>
+          <SquareCard
+            title="Exercise"
+            icon={<DirectionsRun fontSize="inherit" />}
+            onClick={() => window.location.href = "/select-exercise"}
           />
-
-
-          <MiniStatisticsCard
-            title={{ text: "Step Count" }}
-            //count="0"
-            percentage={{ color: "success", text: "" }}
-            icon={{
-                color: "info",
-                component: <SoftBox style={{ transform: "rotate(-90deg)" }}><i className="fas fa-shoe-prints fa-lg" /></SoftBox>
-              }}
-            direction="bottom" 
-            navigateTo="/step-count"
+          <SquareCard
+            title="Step Count"
+            icon={<i className="fas fa-shoe-prints" style={{ transform: "rotate(-90deg)" }} />}
+            onClick={() => window.location.href = "/step-count"}
           />
-
-          <MiniStatisticsCard
-            title={{ text: "Goals" }}
-            //count="0"
-            percentage={{ color: "success", text: "" }}
-            icon={{
-              color: "info",
-              component: <i className="fa-solid fa-list-check fa-lg"/>
-            }}
-            direction="bottom"
-            navigateTo="/goals"
+          <SquareCard
+            title="Goals"
+            icon={<i className="fa-solid fa-list-check" />}
+            onClick={() => window.location.href = "/goals"}
           />
-
-          <MiniStatisticsCard
-            title={{ text: "Water Intake" }}
-            //count="0"
-            icon={{
-              color: "info",
-              component: <i class="fa-solid fa-glass-water-droplet fa-lg"/>
-            }}
-            direction="bottom"
-            navigateTo="water-intake"
+          <SquareCard
+            title="Water Intake"
+            icon={<i className="fa-solid fa-glass-water-droplet" />}
+            onClick={() => window.location.href = "/water-intake"}
           />
-        </SoftBox>
-        
+        </div>
+
         {/* Donut Charts Section */}
-        <SoftBox mt={6}>
-          <SoftTypography variant="h4" mb={3}>
-            Select Metrics to Display
-          </SoftTypography>
+        <div style={{ marginTop: 48 }}>
+          <h4 style={{ marginBottom: 24 }}>Select Metrics to Display</h4>
 
-        {/* Dropdown Menu */}
-          <SoftBox mb={3} width="300px">
-            <Select
-              multiple
-              value={selectedCharts}
-              onChange={handleChartChange}
-              fullWidth
-            >
+          {/* Dropdown */}
+          <div style={{ marginBottom: 24, maxWidth: 300 }}>
+            <Select multiple value={selectedCharts} onChange={handleChartChange} fullWidth>
               <MenuItem value="steps">Steps</MenuItem>
               <MenuItem value="water">Water Intake</MenuItem>
               <MenuItem value="calories">Calories Burned</MenuItem>
             </Select>
-          </SoftBox>
+          </div>
 
-        {/* Rows of Doughnut Charts */}
+          {/* Doughnut charts */}
           <Grid container spacing={3}>
             {selectedCharts.map((metric) => {
               const config = chartConfigs[metric];
@@ -188,9 +176,9 @@ function Dashboard() {
 
               return (
                 <Grid item xs={12} md={4} key={metric}>
-                  <SoftBox p={6} textAlign="center">
+                  <div style={{ padding: 24, textAlign: "center" }}>
                     <DefaultDoughnutChart
-                      title= {config.data.datasets?.[0]?.label || "Progress Overview"}
+                      title={config.data.datasets?.[0]?.label || "Progress Overview"}
                       description=""
                       height="25rem"
                       chart={{
@@ -198,40 +186,22 @@ function Dashboard() {
                         options: config.options,
                       }}
                     />
-                    <SoftTypography mt={2} variant="h6">
+                    <div style={{ marginTop: 16, fontSize: 18, fontWeight: 600 }}>
                       {Math.round(current)} / {total} {unit}
-                    </SoftTypography>
-                    <SoftTypography variant="button" color="text" fontWeight="regular">
+                    </div>
+                    <div style={{ color: "#666", fontWeight: "normal" }}>
                       {percent}% complete
-                    </SoftTypography>
-                  </SoftBox>
+                    </div>
+                  </div>
                 </Grid>
               );
             })}
           </Grid>
-        </SoftBox>
-{/*
-        <div>
-        {data ? (
-          <div>{JSON.stringify(data)}</div>
-        ) : (
-          <div>Loading...</div>
-        )}
+        </div>
       </div>
-
-      <div>
-        {logData ? (
-          <div>{JSON.stringify(logData)}</div>
-        ) : (
-          <div>Loading...</div>
-        )}
-      </div>
-*/}
-      </SoftBox>
       <Footer company={{ href: "https://yourcompany.com", name: "FitBot" }} />
     </>
   );
 }
 
 export default Dashboard;
-
