@@ -5,7 +5,7 @@ import SoftBox from "../../../../components/SoftBox";
 import SoftTypography from "../../../../components/SoftTypography";
 import DefaultDoughnutChart from "../../../../examples/Charts/DoughnutCharts/DefaultDoughnutChart";
 import configs from "../../../../examples/Charts/DoughnutCharts/DefaultDoughnutChart/configs";
-import { Bar } from "react-chartjs-2";
+import { Bar, Line } from "react-chartjs-2";
 
 import {
   Chart as ChartJS,
@@ -15,9 +15,26 @@ import {
   LinearScale,
   Tooltip,
   Legend,
+  TimeScale,
+  PointElement,
+  LineElement,
 } from "chart.js";
 
-ChartJS.register(ArcElement, BarElement, CategoryScale, LinearScale, Tooltip, Legend);
+import zoomPlugin from "chartjs-plugin-zoom";
+import "chartjs-adapter-date-fns";
+
+ChartJS.register(
+  ArcElement,
+  BarElement,
+  CategoryScale,
+  LinearScale,
+  Tooltip,
+  Legend,
+  TimeScale,
+  PointElement,
+  LineElement,
+  zoomPlugin
+);
 
 function parseLocalDate(dateString) {
   const [year, month, day] = dateString.slice(0, 10).split("-").map(Number);
@@ -73,10 +90,11 @@ export default function ShowWaterIntake() {
     return new Date(now.getFullYear(), now.getMonth(), now.getDate());
   }, []);
 
+  // Today's total cups
   const totalCupsToday = useMemo(() => {
     if (!logs.length) return 0;
 
-    const total = logs
+    return logs
       .filter((log) => {
         if (!log.timestamp) return false;
         const logDate = parseLocalDate(log.timestamp);
@@ -85,10 +103,8 @@ export default function ShowWaterIntake() {
       .reduce((sum, log) => {
         const user = log.user || log["﻿user"];
         if (user !== "alyssa") return sum;
-        return sum + Number(log.waterIntake || 0) / 8; // ✅ Convert ounces to cups
+        return sum + Number(log.waterIntake || 0) / 8;
       }, 0);
-
-    return total;
   }, [logs, today]);
 
   const targetCups = 6;
@@ -104,6 +120,7 @@ export default function ShowWaterIntake() {
     return configs(labels, datasets, 70);
   }, [totalCupsToday]);
 
+  // Weekly cups
   const weeklyCups = useMemo(() => {
     if (!logs.length) return Array(7).fill(0);
 
@@ -117,7 +134,7 @@ export default function ShowWaterIntake() {
       const logDate = parseLocalDate(log.timestamp);
       if (logDate >= weekStart && logDate <= today) {
         const dayIndex = logDate.getDay();
-        const intake = Number(log.waterIntake || 0) / 8; // ✅ Convert ounces to cups
+        const intake = Number(log.waterIntake || 0) / 8;
         cups[dayIndex] += intake;
       }
     });
@@ -150,6 +167,103 @@ export default function ShowWaterIntake() {
     },
   };
 
+  // --- NEW: Monthly Line Chart Data for zoomable chart ---
+  const monthlyLineData = useMemo(() => {
+    if (!logs.length) return { labels: [], datasets: [] };
+
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth();
+
+    // Create array for each day of current month, default 0 cups
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const dailyCups = new Array(daysInMonth).fill(0);
+
+    logs.forEach((log) => {
+      if (!log.timestamp) return;
+      const logDate = parseLocalDate(log.timestamp);
+      const user = log.user || log["﻿user"];
+      if (user !== "alyssa") return;
+
+      if (logDate.getFullYear() === year && logDate.getMonth() === month) {
+        const day = logDate.getDate(); // 1-based day of month
+        dailyCups[day - 1] += Number(log.waterIntake || 0) / 8;
+      }
+    });
+
+    // labels: dates of the month in ISO string or simpler format
+    const labels = dailyCups.map((_, i) => {
+      const d = new Date(year, month, i + 1);
+      // Format: MM/dd
+      return `${d.getMonth() + 1}/${d.getDate()}`;
+    });
+
+    return {
+      labels,
+      datasets: [
+        {
+          label: "Daily Cups",
+          data: dailyCups,
+          borderColor: "#1976d2",
+          backgroundColor: "rgba(25, 118, 210, 0.2)",
+          fill: true,
+          tension: 0.3,
+          pointRadius: 3,
+          pointHoverRadius: 6,
+        },
+      ],
+    };
+  }, [logs]);
+
+  const monthlyLineOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: true },
+      tooltip: {
+        mode: "index",
+        intersect: false,
+      },
+      zoom: {
+        zoom: {
+          wheel: {
+            enabled: true,
+          },
+          pinch: {
+            enabled: true,
+          },
+          mode: "x",
+        },
+        pan: {
+          enabled: true,
+          mode: "x",
+        },
+      },
+    },
+    scales: {
+      x: {
+        type: "category", // use category for string labels
+        title: {
+          display: true,
+          text: "Date",
+        },
+        ticks: {
+          maxRotation: 90,
+          minRotation: 45,
+          autoSkip: true,
+          maxTicksLimit: 15,
+        },
+      },
+      y: {
+        beginAtZero: true,
+        title: {
+          display: true,
+          text: "Cups",
+        },
+      },
+    },
+  };
+
   if (error) return <p>Error: {error}</p>;
 
   return (
@@ -173,6 +287,18 @@ export default function ShowWaterIntake() {
               Weekly Water Intake
             </SoftTypography>
             <Bar data={weeklyBarData} options={weeklyBarOptions} />
+          </SoftBox>
+        </Card>
+      </Grid>
+
+      {/* New Monthly Zoomable Line Chart */}
+      <Grid item xs={12}>
+        <Card>
+          <SoftBox p={3} style={{ height: 400 }}>
+            <SoftTypography variant="h5" mb={2}>
+              Monthly Water Intake (Zoomable)
+            </SoftTypography>
+            <Line data={monthlyLineData} options={monthlyLineOptions} />
           </SoftBox>
         </Card>
       </Grid>
