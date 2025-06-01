@@ -115,7 +115,7 @@ export default function ShowWaterIntake() {
     const datasets = {
       label: "Cups",
       data: [totalCupsToday, Math.max(targetCups - totalCupsToday, 0)],
-      backgroundColors: ["success", "dark"],
+      backgroundColors: ["info", "light"],
     };
     return configs(labels, datasets, 70);
   }, [totalCupsToday]);
@@ -264,6 +264,7 @@ export default function ShowWaterIntake() {
     },
   };
 
+  if (loading) return <p>Loading water intake data...</p>;
   if (error) return <p>Error: {error}</p>;
 
   return (

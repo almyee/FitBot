@@ -14,6 +14,7 @@ import Grid from "@mui/material/Grid";
 import DefaultDoughnutChart from "../examples/Charts/DoughnutCharts/DefaultDoughnutChart";
 import configs from "../examples/Charts/DoughnutCharts/DefaultDoughnutChart/configs";
 
+
 function Dashboard() {
   const [data, setData] = useState(null);
   const [logData, setLogData] = useState(null);
