@@ -89,6 +89,33 @@ app.post("/logs/test", async (req, res) => {
   }
 });
 
+// Your route
+app.post("/updateUser", async (req, res) => {
+  const { username, age, gender, height, weight } = req.body;
+
+  if (!username) return res.status(400).json({ success: false, message: "Username required" });
+
+  try {
+    await client.connect();
+    const db = client.db("fitbot"); // make sure this matches your DB name
+
+    const result = await db.collection("users").updateOne(
+      { username },
+      { $set: { age, gender, height, weight } },
+      { upsert: true }
+    );
+
+    res.json({ success: true, result });
+  } catch (error) {
+    console.error("Error updating user:", error);
+    res.status(500).json({ success: false, message: "Error updating user" });
+  } finally {
+    await client.close(); // optional but good hygiene
+  }
+});
+
+
+
 const authRoutes = require("./auth"); // adjust path if needed
 app.use("/api/auth", authRoutes);
 

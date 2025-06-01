@@ -1,22 +1,3 @@
-// import React from "react";
-// import SoftBox from "../components/SoftBox";
-// import SoftTypography from "../components/SoftTypography";
-
-// function Settings() {
-//   return (
-//     <SoftBox p={3}>
-//       <SoftTypography variant="h3" fontWeight="bold">
-//         Settings Page
-//       </SoftTypography>
-//       <SoftTypography variant="body1">
-//         This is where your settings content will go.
-//       </SoftTypography>
-//     </SoftBox>
-//   );
-// }
-
-// export default Settings;
-
 import React, { useState, useEffect } from "react";
 import { Container, TextField, Button, Box, Typography, Paper } from "@mui/material";
 import { useNavigate } from "react-router-dom";
@@ -47,17 +28,43 @@ function Settings() {
     }
   }, [navigate]);
 
-  const handleSave = () => {
-    const currentUser = localStorage.getItem("currentUser");
-    if (currentUser) {
-      const height = `${heightFeet}'${heightInches}"`; // store as string like 5'7"
-      const userData = { age, gender, height, weight };
-      localStorage.setItem(currentUser, JSON.stringify(userData));
-      alert("Profile saved successfully!");
-    } else {
-      alert("No user signed in!");
+  const handleSave = async () => {
+  const currentUser = localStorage.getItem("currentUser");
+
+  if (currentUser) {
+    const height = `${heightFeet}'${heightInches}"`;
+
+    try {
+      const response = await fetch("http://localhost:3001/updateUser", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: currentUser,
+          age,
+          gender,
+          height,
+          weight,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert("Profile saved to MongoDB!");
+      } else {
+        alert("Failed to save profile.");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error saving profile.");
     }
-  };
+  } else {
+    alert("No user signed in!");
+  }
+};
+
   
 
   return (
