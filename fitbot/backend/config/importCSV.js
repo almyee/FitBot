@@ -5,7 +5,7 @@ const csvParser = require('csv-parser');
 const { MongoClient } = require('mongodb');
 
 const uri = process.env.MONGO_URI;
-const csvFilePath = path.join(__dirname, '../sample.csv'); // adjust if your CSV is elsewhere
+const csvFilePath = path.join(__dirname, '../modified_file.csv'); // adjust if your CSV is elsewhere
 
 async function importCSV() {
   const client = new MongoClient(uri);
