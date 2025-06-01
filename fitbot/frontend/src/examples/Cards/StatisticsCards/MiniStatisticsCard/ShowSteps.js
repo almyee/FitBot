@@ -73,46 +73,48 @@ export default function ShowSteps() {
     fetchLogs();
   }, []);
 
-  const targetSteps = 10000;
+  const targetSteps = 10000; // Target stays 10,000 (unchanged)
 
-  const todayUTC = useMemo(() => {
-    const now = new Date();
-    return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
-  }, []);
-
+  // Weekly steps, Sunday to Saturday of current week
   const weeklySteps = useMemo(() => {
     const steps = [0, 0, 0, 0, 0, 0, 0];
+    const today = new Date();
+    const startOfWeek = new Date(today);
+    startOfWeek.setDate(today.getDate() - today.getDay()); // Sunday
+    startOfWeek.setHours(0, 0, 0, 0);
+    const endOfToday = new Date(today);
+    endOfToday.setHours(23, 59, 59, 999);
+
     logs.forEach((log) => {
       const date = new Date(log.timestamp);
-      const day = date.getDay(); // 0 = Sunday
-      steps[day] += Number(log.stepCount || 0) / 2500;
+      if (date >= startOfWeek && date <= endOfToday) {
+        const day = date.getDay();
+        // Divide step count by 100 here
+        steps[day] += Number(log.stepCount || 0) / 100;
+      }
     });
     return steps;
   }, [logs]);
 
-  const weeklyTotal = useMemo(() => {
-    return weeklySteps.reduce((sum, steps) => sum + Number(steps || 0), 0);
-  }, [weeklySteps]);
+  const weeklyTotal = useMemo(
+    () => weeklySteps.reduce((sum, val) => sum + val, 0),
+    [weeklySteps]
+  );
 
-  const percentage = ((weeklyTotal / targetSteps) * 100).toFixed(1);
+  const dailyIndex = useMemo(() => new Date().getDay(), []);
+  const dailyTotal = useMemo(() => weeklySteps[dailyIndex] || 0, [weeklySteps, dailyIndex]);
 
-  const todayDayIndex = useMemo(() => {
-    return new Date().getDay();
-  }, []);
-
-  const dailyTotal = useMemo(() => weeklySteps[todayDayIndex] || 0, [weeklySteps, todayDayIndex]);
-  const currentSteps = dailyTotal;
   const dailyPercentage = ((dailyTotal / targetSteps) * 100).toFixed(1);
 
   const doughnutChart = useMemo(() => {
     const labels = ["Steps Taken", "Remaining"];
     const datasets = {
       label: "Steps",
-      data: [currentSteps, Math.max(targetSteps - currentSteps, 0)],
+      data: [dailyTotal, Math.max(targetSteps - dailyTotal, 0)],
       backgroundColors: ["success", "light"],
     };
     return configs(labels, datasets, 70);
-  }, [currentSteps, targetSteps]);
+  }, [dailyTotal, targetSteps]);
 
   const weeklyBarData = useMemo(
     () => ({
@@ -133,9 +135,7 @@ export default function ShowSteps() {
     () => ({
       responsive: true,
       plugins: {
-        legend: {
-          display: false,
-        },
+        legend: { display: false },
       },
       scales: {
         y: {
@@ -146,19 +146,30 @@ export default function ShowSteps() {
     []
   );
 
+  // Monthly: last 30 days including today, no future dates counted
   const monthlyData = useMemo(() => {
     const now = new Date();
-    const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth(); // 0-indexed
+    const endDate = new Date(now);
+    endDate.setHours(23, 59, 59, 999);
+
+    const startDate = new Date(now);
+    startDate.setDate(now.getDate() - 29);
+    startDate.setHours(0, 0, 0, 0);
 
     const stepsByDate = {};
 
+    // Initialize each day with zero steps
+    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+      const dayStr = d.toISOString().split("T")[0];
+      stepsByDate[dayStr] = 0;
+    }
+
     logs.forEach((log) => {
-      const date = new Date(log.timestamp);
-      if (date.getFullYear() === currentYear && date.getMonth() === currentMonth) {
-        const day = date.toISOString().split("T")[0]; // YYYY-MM-DD
-        if (!stepsByDate[day]) stepsByDate[day] = 0;
-        stepsByDate[day] += Number(log.stepCount || 0);
+      const logDate = new Date(log.timestamp);
+      const dayStr = logDate.toISOString().split("T")[0];
+      if (stepsByDate.hasOwnProperty(dayStr)) {
+        // Divide step count by 100 here
+        stepsByDate[dayStr] += Number(log.stepCount || 0) / 100;
       }
     });
 
@@ -172,8 +183,8 @@ export default function ShowSteps() {
           label: "Steps per Day",
           data,
           fill: true,
-          borderColor: "#1976d2",                    // Blue line
-          backgroundColor: "rgba(25, 118, 210, 0.2)", // Blue fill
+          borderColor: "#1976d2",
+          backgroundColor: "rgba(25, 118, 210, 0.2)",
           tension: 0.3,
           pointRadius: 3,
           pointHoverRadius: 6,
@@ -212,27 +223,11 @@ export default function ShowSteps() {
     },
     plugins: {
       zoom: {
-        pan: {
-          enabled: true,
-          mode: "x",
-        },
-        zoom: {
-          wheel: {
-            enabled: true,
-          },
-          pinch: {
-            enabled: true,
-          },
-          mode: "x",
-        },
+        pan: { enabled: true, mode: "x" },
+        zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: "x" },
       },
-      legend: {
-        display: true,
-      },
-      tooltip: {
-        mode: "index",
-        intersect: false,
-      },
+      legend: { display: true },
+      tooltip: { mode: "index", intersect: false },
     },
   };
 
