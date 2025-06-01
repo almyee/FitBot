@@ -166,7 +166,10 @@ export default function ShowSteps() {
 
     logs.forEach((log) => {
       const logDate = new Date(log.timestamp);
-      const dayStr = logDate.toISOString().split("T")[0];
+      const localDate = new Date(logDate.getFullYear(), logDate.getMonth(), logDate.getDate());
+      const dayStr = localDate.toISOString().split("T")[0];
+
+
       if (stepsByDate.hasOwnProperty(dayStr)) {
         // Divide step count by 100 here
         stepsByDate[dayStr] += Number(log.stepCount || 0) / 100;

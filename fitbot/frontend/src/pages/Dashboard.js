@@ -37,12 +37,13 @@ function Dashboard() {
   }, []);
 
   const today = new Date();
-  const todayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+  const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
   const todayLogs = logData?.filter((log) => {
     const logDate = new Date(log.timestamp);
-    const logDateUTC = new Date(Date.UTC(logDate.getUTCFullYear(), logDate.getUTCMonth(), logDate.getUTCDate()));
-    return logDateUTC.getTime() === todayUTC.getTime();
+    const localDate = new Date(logDate.getFullYear(), logDate.getMonth(), logDate.getDate());
+    return localDate.getTime() === todayDate.getTime();
+    
   }) || [];
 
   const stepsTaken = todayLogs.reduce((sum, log) => sum + Number(log.stepCount || 0), 0) / 100;
