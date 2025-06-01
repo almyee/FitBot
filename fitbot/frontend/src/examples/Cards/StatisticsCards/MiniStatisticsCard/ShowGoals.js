@@ -80,21 +80,32 @@ export default function ShowGoals() {
   const [error, setError] = useState(null);
   const [selectedGoal, setSelectedGoal] = useState("Calories Burnt");
 
-  const fetchLogs = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const response = await fetch("http://localhost:3001/activitylogs");
-      if (!response.ok) throw new Error("Failed to fetch logs");
-      const data = await response.json();
-      const alyssaLogs = data.filter((log) => log.user === "alyssa");
-      setLogs(alyssaLogs);
-    } catch (err) {
-      setError(err.message || "Unknown error");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+
+const fetchLogs = useCallback(async () => {
+  setLoading(true);
+  setError(null);
+  try {
+    const userResponse = await fetch("http://localhost:3001/users");
+    if (!userResponse.ok) throw new Error("Failed to fetch users");
+    const users = await userResponse.json();
+    console.log(users)
+    const logsResponse = await fetch("http://localhost:3001/activitylogs");
+    if (!logsResponse.ok) throw new Error("Failed to fetch logs");
+    const logsData = await logsResponse.json();
+
+    // Filter logs where some username includes the log.user string
+    const userLogs = logsData.filter((log) =>
+      users.some((user) => user.username.toLowerCase().includes(log.user))
+    );
+
+    setLogs(userLogs);
+  } catch (err) {
+    setError(err.message || "Unknown error");
+  } finally {
+    setLoading(false);
+  }
+}, []);
+
 
   useEffect(() => {
     fetchLogs();
@@ -106,7 +117,7 @@ export default function ShowGoals() {
     const today = new Date();
     const todayYMD = { year: today.getFullYear(), month: today.getMonth(), day: today.getDate() };
     const weekStart = startOfWeek(today);
-
+    
     // Initialize goal data
     const initial = Object.fromEntries(
       Object.entries(GOAL_CONFIG).map(([label, { unit }]) => [
