@@ -52,12 +52,11 @@ export default function ShowWaterIntake() {
         const data = await response.json();
 
         const alyssaLogs = data.filter((log) => {
-          const user = log.user || log["﻿user"]; // Handle invisible character
+          const user = log.user || log["﻿user"];
           return user === "alyssa";
         });
 
         console.log("Fetched logs for Alyssa:", alyssaLogs);
-        console.log("Example keys in first log:", Object.keys(data[0]));
         setLogs(alyssaLogs);
       } catch (err) {
         setError(err.message || "Failed to fetch logs");
@@ -86,7 +85,7 @@ export default function ShowWaterIntake() {
       .reduce((sum, log) => {
         const user = log.user || log["﻿user"];
         if (user !== "alyssa") return sum;
-        return sum + Number(log.waterIntake || 0);
+        return sum + Number(log.waterIntake || 0) / 8; // ✅ Convert ounces to cups
       }, 0);
 
     return total;
@@ -118,7 +117,7 @@ export default function ShowWaterIntake() {
       const logDate = parseLocalDate(log.timestamp);
       if (logDate >= weekStart && logDate <= today) {
         const dayIndex = logDate.getDay();
-        const intake = Number(log.waterIntake || 0);
+        const intake = Number(log.waterIntake || 0) / 8; // ✅ Convert ounces to cups
         cups[dayIndex] += intake;
       }
     });
@@ -151,7 +150,6 @@ export default function ShowWaterIntake() {
     },
   };
 
- // if (loading) return <p>Loading Alyssa's water intake logs...</p>;
   if (error) return <p>Error: {error}</p>;
 
   return (
@@ -160,7 +158,7 @@ export default function ShowWaterIntake() {
         <DefaultDoughnutChart title="Today's Water Intake" height="25rem" chart={doughnutChart} />
         <SoftBox mt={2} textAlign="center">
           <SoftTypography variant="h6">
-            {totalCupsToday}/{targetCups} cups
+            {totalCupsToday.toFixed(1)}/{targetCups} cups
           </SoftTypography>
           <SoftTypography variant="caption" color="text">
             {percentage}% of goal reached
