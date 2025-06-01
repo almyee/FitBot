@@ -34,6 +34,7 @@ function Dashboard() {
       .then((logs) => setLogData(logs))
       .catch((error) => console.error("Error fetching logs:", error));
   }, []);
+
   const today = new Date();
   const todayUTC = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
 
@@ -56,6 +57,7 @@ function Dashboard() {
   const value = e.target.value;
   setSelectedCharts(typeof value === "string" ? value.split(",") : value);
   };
+  
   const chartConfigs = {
   steps: configs(
     ["Taken", "Remaining"],
@@ -64,7 +66,8 @@ function Dashboard() {
       data: [stepsTaken, Math.max(0, targetSteps - stepsTaken)],
       backgroundColors: ["success", "light"],
     },
-    ((stepsTaken / targetSteps) * 100).toFixed(1)
+    //((stepsTaken / targetSteps) * 100).toFixed(1)
+    50,
   ),
   water: configs(
     ["Drank", "Remaining"],
@@ -73,7 +76,8 @@ function Dashboard() {
       data: [waterDrank, Math.max(0, targetWater - waterDrank)],
       backgroundColors: ["info", "light"],
     },
-    ((waterDrank / targetWater) * 100).toFixed(1)
+    //((waterDrank / targetWater) * 100).toFixed(1)
+    50,
   ),
   calories: configs(
     ["Burned", "Remaining"],
@@ -82,7 +86,8 @@ function Dashboard() {
       data: [caloriesBurned, Math.max(0, targetCalories - caloriesBurned)],
       backgroundColors: ["primary", "light"],
     },
-    ((caloriesBurned / targetCalories) * 100).toFixed(1)
+    //((caloriesBurned / targetCalories) * 100).toFixed(1)
+    50,
   ),
 };
 
@@ -172,7 +177,7 @@ function Dashboard() {
               const current = config.data.datasets[0].data[0];
               const remaining = config.data.datasets[0].data[1];
               const total = current + remaining;
-              const percentage = ((current / total) * 100).toFixed(1);
+              const percent = ((current / total) * 100).toFixed(1);
 
               let unit = "";
               if (metric === "steps") unit = "steps";
@@ -195,7 +200,7 @@ function Dashboard() {
                       {Math.round(current)} / {total} {unit}
                     </SoftTypography>
                     <SoftTypography variant="button" color="text" fontWeight="regular">
-                      {percentage}% complete
+                      {percent}% complete
                     </SoftTypography>
                   </SoftBox>
                 </Grid>
