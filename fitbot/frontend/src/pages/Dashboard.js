@@ -45,12 +45,12 @@ function Dashboard() {
     return logDateUTC.getTime() === todayUTC.getTime();
   }) || [];
 
-  const stepsTaken = todayLogs.reduce((sum, log) => sum + Number(log.stepCount || 0), 0) / 1000;
+  const stepsTaken = todayLogs.reduce((sum, log) => sum + Number(log.stepCount || 0), 0) / 100;
   const waterDrank = todayLogs.reduce((sum, log) => sum + Number(log.waterIntake || 0), 0) / 10;
   const caloriesBurned = todayLogs.reduce((sum, log) => sum + Number(log.caloriesBurned || 0), 0)/ 10;
 
   console.log("doughnut stuff: ", stepsTaken, waterDrank, caloriesBurned)
-  const targetSteps = 8000;
+  const targetSteps = 10000;
   const targetWater = 8;      // in cups
   const targetCalories = 2000;
 
