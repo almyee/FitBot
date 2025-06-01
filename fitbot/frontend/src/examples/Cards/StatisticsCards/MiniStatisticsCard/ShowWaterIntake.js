@@ -169,51 +169,56 @@ export default function ShowWaterIntake() {
 
   // --- NEW: Monthly Line Chart Data for zoomable chart ---
   const monthlyLineData = useMemo(() => {
-    if (!logs.length) return { labels: [], datasets: [] };
+  if (!logs.length) return { labels: [], datasets: [] };
 
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = now.getMonth();
+  const today = new Date();
+  const startDate = new Date();
+  startDate.setDate(today.getDate() - 29); // last 30 days including today
 
-    // Create array for each day of current month, default 0 cups
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const dailyCups = new Array(daysInMonth).fill(0);
+  // Create a map to hold cups per date
+  const dailyCupsMap = {};
 
-    logs.forEach((log) => {
-      if (!log.timestamp) return;
-      const logDate = parseLocalDate(log.timestamp);
-      const user = log.user || log["﻿user"];
-      if (user !== "alyssa") return;
+  logs.forEach((log) => {
+    if (!log.timestamp) return;
+    const logDate = parseLocalDate(log.timestamp);
+    const user = log.user || log["﻿user"];
+    if (user !== "alyssa") return;
 
-      if (logDate.getFullYear() === year && logDate.getMonth() === month) {
-        const day = logDate.getDate(); // 1-based day of month
-        dailyCups[day - 1] += Number(log.waterIntake || 0) / 8;
-      }
-    });
+    // Only include logs within last 30 days
+    if (logDate >= startDate && logDate <= today) {
+      const key = logDate.toISOString().slice(0, 10); // format: YYYY-MM-DD
+      dailyCupsMap[key] = (dailyCupsMap[key] || 0) + Number(log.waterIntake || 0) / 8;
+    }
+  });
 
-    // labels: dates of the month in ISO string or simpler format
-    const labels = dailyCups.map((_, i) => {
-      const d = new Date(year, month, i + 1);
-      // Format: MM/dd
-      return `${d.getMonth() + 1}/${d.getDate()}`;
-    });
+  // Generate ordered labels and values from startDate to today
+  const labels = [];
+  const data = [];
 
-    return {
-      labels,
-      datasets: [
-        {
-          label: "Daily Cups",
-          data: dailyCups,
-          borderColor: "#1976d2",
-          backgroundColor: "rgba(25, 118, 210, 0.2)",
-          fill: true,
-          tension: 0.3,
-          pointRadius: 3,
-          pointHoverRadius: 6,
-        },
-      ],
-    };
-  }, [logs]);
+  for (let i = 0; i < 30; i++) {
+    const date = new Date(startDate);
+    date.setDate(startDate.getDate() + i);
+    const key = date.toISOString().slice(0, 10);
+    labels.push(key);
+    data.push(dailyCupsMap[key] || 0);
+  }
+
+  return {
+    labels,
+    datasets: [
+      {
+        label: "Water Intake (cups)",
+        data,
+        borderColor: "#1976d2",
+        backgroundColor: "rgba(25, 118, 210, 0.2)",
+        fill: true,
+        tension: 0.3,
+        pointRadius: 3,
+        pointHoverRadius: 6,
+      },
+    ],
+  };
+}, [logs]);
 
   const monthlyLineOptions = {
     responsive: true,
@@ -223,6 +228,17 @@ export default function ShowWaterIntake() {
       tooltip: {
         mode: "index",
         intersect: false,
+        callbacks: {
+          title: (tooltipItems) => {
+            const rawLabel = tooltipItems[0].label; // e.g., "2025-05-30"
+            const date = new Date(rawLabel);
+            return date.toLocaleDateString("en-US", {
+              month: "long",
+              day: "numeric",
+              year: "numeric",
+            }); // e.g., "May 30, 2025"
+          },
+        },
       },
       zoom: {
         zoom: {
@@ -248,10 +264,10 @@ export default function ShowWaterIntake() {
           text: "Date",
         },
         ticks: {
-          maxRotation: 90,
-          minRotation: 45,
-          autoSkip: true,
-          maxTicksLimit: 15,
+          callback: function (value) {
+            const date = new Date(this.getLabelForValue(value));
+            return date.toLocaleDateString("en-US", { month: "short", day: "numeric" }); 
+          },
         },
       },
       y: {
