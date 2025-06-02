@@ -71,7 +71,7 @@ const GOAL_CONFIG = {
   "Exercise Duration": { key: "duration", unit: "hours", target: 5 },
   "Steps Taken": { key: "stepCount", unit: "steps", target: 10000 },
   "Distance Covered": { key: "distanceCovered", unit: "miles", target: 5 },
-  "Water Intake": { key: "waterIntake", unit: "cups", target: 6 },
+  "Water Intake": { key: "waterIntake", unit: "cups", target: 8 },
 };
 
 export default function ShowGoals() {
@@ -222,10 +222,9 @@ export default function ShowGoals() {
           : "Congrats! You’ve reached your distance goal.",
       "Water Intake": (todayVal) =>
         todayVal < GOAL_CONFIG["Water Intake"].target
-          ? `Drink ${Math.max(
-              0,
-              GOAL_CONFIG["Water Intake"].target - todayVal
-            )} more cups today.`
+          ? `Drink ${Math.round(
+            Math.max( 0, GOAL_CONFIG["Water Intake"].target - todayVal) * 100
+            ) / 100 } more cups today.`
           : "Congrats! You’ve reached your water intake goal.",
     };
 
@@ -241,7 +240,7 @@ export default function ShowGoals() {
           ? goalRemainingMessages[goal](null, todayVal)
           : goalRemainingMessages[goal](totalWeekly);
       goalData[goal] = {
-        today: `${todayVal.toFixed(goal === "Exercise Duration" ? 1 : 0)} ${unit}`,
+        today: `${todayVal.toFixed(goal === "Exercise Duration" || "Steps Taken" ? 1 : 0)} ${unit}`,
         weekly,
         monthly,
         unit,
