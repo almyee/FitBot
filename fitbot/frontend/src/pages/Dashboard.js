@@ -150,18 +150,97 @@ function Dashboard() {
         </div>
 
         {/* Donut Charts Section */}
-        <div style={{ marginTop: 48 }}>
-          <h4 style={{ marginBottom: 24 }}>Select Metrics to Display</h4>
+        
+        <div
+          style={{
+            marginTop: 48,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center", // centers content horizontally
+          }}
+        >
+          <h4 style={{ marginBottom: 24, fontSize: "1.75rem", textAlign: "center" }}>
+            Select Metrics to Display
+          </h4>
 
           {/* Dropdown */}
-          <div style={{ marginBottom: 24, maxWidth: 300 }}>
-            <Select multiple value={selectedCharts} onChange={handleChartChange} fullWidth>
-              <MenuItem value="steps">Steps</MenuItem>
-              <MenuItem value="water">Water Intake</MenuItem>
-              <MenuItem value="calories">Calories Burned</MenuItem>
+          <div style={{ marginBottom: 24, maxWidth: 350, width: "100%" }}>
+            <Select
+              multiple
+              value={selectedCharts}
+              onChange={handleChartChange}
+              fullWidth
+              MenuProps={{
+                PaperProps: {
+                  style: {
+                    textAlign: "center",
+                  },
+                },
+                MenuListProps: {
+                  style: {
+                    justifyContent: "center",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                  },
+                },
+              }}
+              sx={{
+                textAlign: "center",
+              }}
+            >
+              <MenuItem
+                value="steps"
+                sx={{
+                  justifyContent: "center",
+                  textAlign: "center",
+                  fontSize: "1.25rem",  // bigger text
+                  width: "100%",        // full width
+                  "&:hover": {
+                    // backgroundColor: "rgba(25, 118, 210, 0.08)", // typical MUI hover color
+                    width: "100%",
+                  },
+                }}
+              >
+                Steps
+              </MenuItem>
+              <MenuItem
+                value="water"
+                sx={{
+                  justifyContent: "center",
+                  textAlign: "center",
+                  fontSize: "1.25rem",
+                  width: "100%",
+                  "&:hover": {
+                    // backgroundColor: "rgba(25, 118, 210, 0.08)",
+                    width: "100%",
+                  },
+                }}
+              >
+                Water Intake
+              </MenuItem>
+              <MenuItem
+                value="calories"
+                sx={{
+                  justifyContent: "center",
+                  textAlign: "center",
+                  fontSize: "1.25rem",
+                  width: "100%",
+                  "&:hover": {
+                    // backgroundColor: "rgba(25, 118, 210, 0.08)",
+                    width: "100%",
+                  },
+                }}
+              >
+                Calories Burned
+              </MenuItem>
             </Select>
-          </div>
 
+
+          </div>
+        </div>
+
+        <div>
           {/* Doughnut charts */}
           <Grid container spacing={3}>
             {selectedCharts.map((metric) => {

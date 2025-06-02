@@ -301,10 +301,13 @@ function DashboardNavbar({ absolute, light, isMini }) {
   );
 
   return (
-    <AppBar
+     <AppBar
       position={absolute ? "absolute" : navbarType}
       color="inherit"
-      sx={(theme) => navbar(theme, { transparentNavbar, absolute, light })}
+      sx={{
+    backgroundColor: "#EBEFF5", // light gray
+    boxShadow: "none", // optional: remove shadow
+  }}
     >
       <Toolbar sx={(theme) => navbarContainer(theme)}>
         <Link to="/" style={{ textDecoration: "none" }}>
