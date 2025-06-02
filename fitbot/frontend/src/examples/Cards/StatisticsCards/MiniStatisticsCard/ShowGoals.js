@@ -67,7 +67,7 @@ function calculateCaloriesHRBased({ gender, age, weight, VO2max, heartRate }) {
 }
 
 const GOAL_CONFIG = {
-  "Calories Burnt": { key: "caloriesBurned", unit: "cal", target: 500 },
+  "Calories Burned": { key: "caloriesBurned", unit: "cal", target: 500 },
   "Exercise Duration": { key: "duration", unit: "hours", target: 5 },
   "Steps Taken": { key: "stepCount", unit: "steps", target: 10000 },
   "Distance Covered": { key: "distanceCovered", unit: "miles", target: 5 },
@@ -78,7 +78,7 @@ export default function ShowGoals() {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [selectedGoal, setSelectedGoal] = useState("Calories Burnt");
+  const [selectedGoal, setSelectedGoal] = useState("Calories Burned");
 
   const fetchLogs = useCallback(async () => {
     setLoading(true);
@@ -149,7 +149,7 @@ export default function ShowGoals() {
       for (const [goal, { key }] of Object.entries(GOAL_CONFIG)) {
         let value = 0;
 
-        if (goal === "Calories Burnt") {
+        if (goal === "Calories Burned") {
           const hasRequiredFields =
             log.gender != null &&
             log.age != null &&
@@ -199,11 +199,11 @@ export default function ShowGoals() {
     });
 
     const goalRemainingMessages = {
-      "Calories Burnt": (_, todayVal) =>
-        todayVal < GOAL_CONFIG["Calories Burnt"].target
+      "Calories Burned": (_, todayVal) =>
+        todayVal < GOAL_CONFIG["Calories Burned"].target
           ? `Need to burn ${Math.max(
               0,
-              GOAL_CONFIG["Calories Burnt"].target - todayVal
+              GOAL_CONFIG["Calories Burned"].target - todayVal
             ).toFixed(0)} more calories today.`
           : "Congrats! You’ve reached your calorie burn goal today.",
       "Exercise Duration": (total) =>
@@ -242,7 +242,7 @@ export default function ShowGoals() {
         goal === "Water Intake" ? todayVal : weekly.reduce((a, b) => a + b, 0);
 
       const message =
-        goal === "Calories Burnt"
+        goal === "Calories Burned"
           ? goalRemainingMessages[goal](null, todayVal)
           : goalRemainingMessages[goal](totalWeekly);
       goalData[goal] = {
