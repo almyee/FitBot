@@ -71,8 +71,9 @@ function Dashboard() {
   }) : [];
 
   const stepsTaken = todayLogs.reduce((sum, log) => sum + Number(log.stepCount || 0), 0) / 100;
-  const waterDrank = todayLogs.reduce((sum, log) => sum + Number(log.waterIntake || 0), 0) / 10;
-  const caloriesBurned = todayLogs.reduce((sum, log) => sum + Number(log.caloriesBurned || 0), 0) / 10;
+  const waterDrank = todayLogs.reduce((sum, log) => sum + Number(log.waterIntake || 0), 0) / 8;
+  const caloriesBurned = todayLogs.reduce((sum, log) => sum + Number(log.caloriesBurned || 0), 0)/ 10;
+
 
   const targetSteps = 10000;
   const targetWater = 8;      // in cups
@@ -112,6 +113,37 @@ function Dashboard() {
       50,
     ),
   };
+
+  
+  const chartConfigs = {
+  steps: configs(
+    ["Taken", "Remaining"],
+    {
+      label: "Steps",
+      data: [stepsTaken, Math.max(0, targetSteps - stepsTaken)],
+      backgroundColors: ["success", "light"],
+    },
+    70,
+  ),
+  water: configs(
+    ["Drank", "Remaining"],
+    {
+      label: "Water",
+      data: [waterDrank, Math.max(0, targetWater - waterDrank)],
+      backgroundColors: ["info", "light"],
+    },
+    70,
+  ),
+  calories: configs(
+    ["Burned", "Remaining"],
+    {
+      label: "Calories",
+      data: [caloriesBurned, Math.max(0, targetCalories - caloriesBurned)],
+      backgroundColors: ["primary", "light"],
+    },
+    70,
+  ),
+};
 
   return (
     <>
