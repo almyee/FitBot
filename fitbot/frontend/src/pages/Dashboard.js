@@ -84,36 +84,6 @@ function Dashboard() {
     setSelectedCharts(typeof value === "string" ? value.split(",") : value);
   };
 
-  const chartConfigs = {
-    steps: configs(
-      ["Taken", "Remaining"],
-      {
-        label: "Steps",
-        data: [stepsTaken, Math.max(0, targetSteps - stepsTaken)],
-        backgroundColors: ["success", "light"],
-      },
-      50,
-    ),
-    water: configs(
-      ["Drank", "Remaining"],
-      {
-        label: "Water",
-        data: [waterDrank, Math.max(0, targetWater - waterDrank)],
-        backgroundColors: ["info", "light"],
-      },
-      50,
-    ),
-    calories: configs(
-      ["Burned", "Remaining"],
-      {
-        label: "Calories",
-        data: [caloriesBurned, Math.max(0, targetCalories - caloriesBurned)],
-        backgroundColors: ["primary", "light"],
-      },
-      50,
-    ),
-  };
-
   
   const chartConfigs = {
   steps: configs(
