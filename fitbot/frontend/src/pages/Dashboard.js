@@ -242,7 +242,7 @@ function Dashboard() {
 
         <div>
           {/* Doughnut charts */}
-          <Grid container spacing={3}>
+          <Grid container spacing={13}>
             {selectedCharts.map((metric) => {
               const config = chartConfigs[metric];
               const current = config.data.datasets[0].data[0];
