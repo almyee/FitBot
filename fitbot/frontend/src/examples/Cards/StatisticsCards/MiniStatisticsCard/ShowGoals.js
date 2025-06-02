@@ -110,14 +110,18 @@ export default function ShowGoals() {
     }
 
     const today = new Date();
-    today.setHours(23, 59, 59, 999); 
+    //today.setHours(23, 59, 59, 999); 
 
     const todayYMD = {
       year: today.getFullYear(),
       month: today.getMonth(),
       day: today.getDate(),
     };
-    const weekStart = startOfWeek(today);
+    //const weekStart = startOfWeek(today);
+
+    const weekStart = new Date(today);
+    weekStart.setDate(today.getDate() - today.getDay()); // Sunday
+    weekStart.setHours(0, 0, 0, 0);
 
     // Initialize goal data
     const initial = Object.fromEntries(
@@ -130,6 +134,7 @@ export default function ShowGoals() {
     logs.forEach((log) => {
       const { year, month, day } = toLocalDate(log.timestamp);
       const logDate = new Date(year, month, day);
+      logDate.setHours(0, 0, 0, 0); 
       
 
       const isToday =
@@ -171,6 +176,7 @@ export default function ShowGoals() {
               value = value / 60 / 10; // seconds to hours scaled
               break;
             case "Steps Taken":
+              //value -= 953; DO TOMORROW
               value /= 100;
               break;
             case "Distance Covered":
