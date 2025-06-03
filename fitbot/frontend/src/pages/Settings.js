@@ -10,6 +10,11 @@ function Settings() {
   const navigate = useNavigate();
   const [heightFeet, setHeightFeet] = useState("");
   const [heightInches, setHeightInches] = useState("");
+  const [calories, setCalories] = useState("");
+  const [steps, setSteps] = useState("");
+  const [water, setWater] = useState("");
+  const [duration, setDuration] = useState("");
+  const [distance, setDistance] = useState("");
   
   useEffect(() => {
     // Check if a user is logged in, if not, redirect to sign-in page
@@ -24,6 +29,11 @@ function Settings() {
         setGender(storedData.gender);
         setHeight(storedData.height);
         setWeight(storedData.weight);
+        setSteps(storedData.steps);
+        setWater(storedData.water);
+        setCalories(storedData.calories);
+        setDuration(storedData.duration);
+        setDistance(storedData.distance);
       }
     }
   }, [navigate]);
@@ -46,6 +56,11 @@ function Settings() {
           gender,
           height,
           weight,
+          steps,
+          calories, 
+          water, 
+          duration, 
+          distance,
         }),
       });
 
@@ -73,6 +88,9 @@ function Settings() {
         <Typography variant="h4" align="center" gutterBottom>
           Settings
         </Typography>
+        <Typography variant="subtitle1" gutterBottom>
+              Basic Information
+          </Typography>
         <Box component="form" sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           <TextField
             label="Age"
@@ -81,6 +99,13 @@ function Settings() {
             value={age}
             onChange={(e) => setAge(e.target.value)}
             required
+            sx={{ flex: 1 }}
+                  InputProps={{
+                    sx: { fontSize: "1rem" },
+                  }}
+                  InputLabelProps={{
+                    sx: { fontSize: "1rem" },
+                  }}
           />
           <TextField
             label="Gender"
@@ -89,6 +114,13 @@ function Settings() {
             value={gender}
             onChange={(e) => setGender(e.target.value)}
             required
+            sx={{ flex: 1 }}
+                  InputProps={{
+                    sx: { fontSize: "1rem" },
+                  }}
+                  InputLabelProps={{
+                    sx: { fontSize: "1rem" },
+                  }}
           />
         <Box>
             <Typography variant="subtitle1" gutterBottom>
@@ -101,7 +133,14 @@ function Settings() {
                 value={heightFeet}
                 onChange={(e) => setHeightFeet(e.target.value)}
                 required
+                // sx={{ flex: 1 }}
                 sx={{ flex: 1 }}
+                  InputProps={{
+                    sx: { fontSize: "1rem" },
+                  }}
+                  InputLabelProps={{
+                    sx: { fontSize: "1rem" },
+                  }}
                 />
                 <TextField
                 label="Inches"
@@ -109,7 +148,14 @@ function Settings() {
                 value={heightInches}
                 onChange={(e) => setHeightInches(e.target.value)}
                 required
+                // sx={{ flex: 1 }}
                 sx={{ flex: 1 }}
+                  InputProps={{
+                    sx: { fontSize: "1rem" },
+                  }}
+                  InputLabelProps={{
+                    sx: { fontSize: "1rem" },
+                  }}
                 />
             </Box>
             </Box>
@@ -120,7 +166,92 @@ function Settings() {
             value={weight}
             onChange={(e) => setWeight(e.target.value)}
             required
+            sx={{ flex: 1 }}
+                  InputProps={{
+                    sx: { fontSize: "1rem" },
+                  }}
+                  InputLabelProps={{
+                    sx: { fontSize: "1rem" },
+                  }}
           />
+          <Box>
+            <Typography variant="subtitle1" gutterBottom>
+                Goals
+            </Typography>
+            <Box sx={{ display: "flex", gap: 2 }}>
+                <TextField
+                label="Step Count"
+                variant="outlined"
+                value={steps}
+                onChange={(e) => setSteps(e.target.value)}
+                required
+                sx={{ flex: 1 }}
+                  InputProps={{
+                    sx: { fontSize: "0.85rem" },
+                  }}
+                  InputLabelProps={{
+                    sx: { fontSize: "0.85rem" },
+                  }}
+                />
+                <TextField
+                label="Water Intake (cups)"
+                variant="outlined"
+                value={water}
+                onChange={(e) => setWater(e.target.value)}
+                required
+                sx={{ flex: 1 }}
+                  InputProps={{
+                    sx: { fontSize: "0.85rem" },
+                  }}
+                  InputLabelProps={{
+                    sx: { fontSize: "0.85rem" },
+                  }}
+                />
+                <TextField
+                label="Calories Burned"
+                variant="outlined"
+                value={calories}
+                onChange={(e) => setCalories(e.target.value)}
+                required
+                sx={{ flex: 1 }}
+                  InputProps={{
+                    sx: { fontSize: "0.85rem" },
+                  }}
+                  InputLabelProps={{
+                    sx: { fontSize: "0.85rem" },
+                  }}
+                />
+                <TextField
+                label="Exercise Duration (hrs)"
+                variant="outlined"
+                value={duration}
+                onChange={(e) => setDuration(e.target.value)}
+                required
+                sx={{ flex: 1 }}
+                  InputProps={{
+                    sx: { fontSize: "0.85rem" },
+                  }}
+                  InputLabelProps={{
+                    sx: { fontSize: "0.85rem" },
+                  }}
+                />
+                <TextField
+                label="Distance Covered (mi)"
+                variant="outlined"
+                value={distance}
+                onChange={(e) => setDistance(e.target.value)}
+                required
+                sx={{ flex: 1 }}
+                  InputProps={{
+                    sx: { fontSize: "0.85rem" },
+                  }}
+                  InputLabelProps={{
+                    sx: { fontSize: "0.85rem" },
+                  }}
+                />
+                
+            </Box>
+            </Box>
           <Button variant="contained" color="primary" onClick={handleSave} fullWidth>
             Save
           </Button>

@@ -125,7 +125,7 @@ app.post("/logs/test", async (req, res) => {
 
 // Your route
 app.post("/updateUser", async (req, res) => {
-  const { username, age, gender, height, weight } = req.body;
+  const { username, age, gender, height, weight, steps, calories, water, duration, distance } = req.body;
 
   if (!username) return res.status(400).json({ success: false, message: "Username required" });
 
@@ -135,7 +135,7 @@ app.post("/updateUser", async (req, res) => {
 
     const result = await db.collection("users").updateOne(
       { username },
-      { $set: { age, gender, height, weight } },
+      { $set: { age, gender, height, weight, steps, calories, water, duration, distance } },
       { upsert: true }
     );
 
