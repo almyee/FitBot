@@ -74,6 +74,54 @@ const GOAL_CONFIG = {
   "Water Intake": { key: "waterIntake", unit: "cups", target: 8 },
 };
 
+// const GOAL_COLORS = {
+//   "Steps Taken": {
+//     barColor: "#4caf50",      // MUI green for "success"
+//     lineColor: "rgba(76, 175, 80, 0.5)",
+//   },
+//   "Water Intake": {
+//     barColor: "#29b6f6",      // MUI light blue for "info"
+//     lineColor: "rgba(41, 182, 246, 0.5)",
+//   },
+//   "Calories Burned": {
+//     barColor: "#ef5350",      // MUI red for "primary"
+//     lineColor: "rgba(239, 83, 80, 0.4)",
+//   },
+//   // Add fallback/defaults if needed
+//   "Exercise Duration": {
+//     barColor: "#ab47bc",      // purple
+//     lineColor: "rgba(171, 71, 188, 0.4)",
+//   },
+//   "Distance Covered": {
+//     barColor: "#ffa726",      // orange
+//     lineColor: "rgba(255, 167, 38, 0.4)",
+//   },
+// };
+const GOAL_COLORS = {
+  "Steps Taken": {
+    barColor: "#98EC2E", // success (green) #98EC2E "#4caf50"
+    lineColor: "rgb(152, 236, 46, 0.4)", //#2FAA53 rgba(76, 175, 80, 0.5)
+  },
+  "Water Intake": {
+    barColor: "#42A5F5", // info (blue, as used in weeklyBarData) #2152FF 42a5f5 //bar chart #42A5F5
+    lineColor: "rgba(66, 165, 245, 0.4)", // same family as used in the doughnut chart line variant #1B76D3 rgba(66, 165, 245, 0.4)
+  },
+  "Calories Burned": {
+    barColor: "#FF0081", // primary (red) #FF0081 ef5350
+    lineColor: "rgba(239, 83, 80, 0.4)",
+  },
+  // Optional: add additional mappings as needed
+  "Exercise Duration": {
+    barColor: "#ab47bc",      // purple
+    lineColor: "rgba(171, 71, 188, 0.4)",
+  },
+  "Distance Covered": {
+    barColor: "#ffa726",      // orange
+    lineColor: "rgba(255, 167, 38, 0.4)",
+  },
+};
+
+
 export default function ShowGoals() {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -268,7 +316,7 @@ export default function ShowGoals() {
         {
           label: selectedGoal,
           data: goal.weekly,
-          backgroundColor: "#42a5f5",
+          backgroundColor: GOAL_COLORS[selectedGoal]?.barColor || "#42a5f5",
           borderRadius: 4,
         },
       ],
@@ -290,8 +338,8 @@ export default function ShowGoals() {
         {
           label: `${selectedGoal} - Last 30 Days`,
           data: goal.monthly,
-          borderColor: "#42a5f5",
-          backgroundColor: "rgba(66, 165, 245, 0.4)",
+          borderColor: GOAL_COLORS[selectedGoal]?.barColor || "#42a5f5",
+          backgroundColor: GOAL_COLORS[selectedGoal]?.lineColor || "rgba(66, 165, 245, 0.4)",
           fill: true,
           tension: 0.3,
           pointRadius: 2,
