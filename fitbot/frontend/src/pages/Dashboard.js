@@ -1,13 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
+import * as d3 from "d3";
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import { DirectionsRun } from '@mui/icons-material';
-import DashboardNavbar from "../examples/Navbars/DashboardNavbar";
-import Footer from "../examples/Footer";
-import DefaultDoughnutChart from "../examples/Charts/DoughnutCharts/DefaultDoughnutChart";
-import configs from "../examples/Charts/DoughnutCharts/DefaultDoughnutChart/configs";
 import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import Grid from "@mui/material/Grid";
+import Footer from "../examples/Footer";
 
 function SquareCard({ title, icon, onClick }) {
   return (
@@ -41,6 +39,67 @@ function SquareCard({ title, icon, onClick }) {
   );
 }
 
+// D3 DonutChart component
+function DonutChart({ data, colors, size = 200 }) {
+  const ref = useRef();
+
+  useEffect(() => {
+    if (!data || data.length === 0) return;
+
+    const radius = size / 2;
+    const color = d3.scaleOrdinal().range(colors);
+
+    const pie = d3.pie().value(d => d);
+    const arcs = pie(data);
+
+    const arcGenerator = d3.arc()
+      .innerRadius(radius * 0.6)
+      .outerRadius(radius * 0.9)
+      .cornerRadius(5);
+
+    const svg = d3.select(ref.current);
+    svg.selectAll("*").remove(); // Clear previous renders
+
+    svg
+      .attr("width", size)
+      .attr("height", size)
+      .append("g")
+      .attr("transform", `translate(${radius}, ${radius})`)
+      .selectAll("path")
+      .data(arcs)
+      .join("path")
+      .attr("d", arcGenerator)
+      .attr("fill", (d, i) => color(i))
+      .attr("stroke", "#fff")
+      .style("stroke-width", "2px");
+
+    // Add text label for percentage in center
+    const total = d3.sum(data);
+    const taken = data[0];
+    const percent = total > 0 ? Math.round((taken / total) * 100) : 0;
+
+    const g = svg.select("g");
+
+    g.append("text")
+      .attr("text-anchor", "middle")
+      .attr("dy", "0.3em")
+      .style("font-size", "32px")
+      .style("font-weight", "bold")
+      .text(`${percent}%`);
+
+    // Add label below percentage
+    g.append("text")
+      .attr("text-anchor", "middle")
+      .attr("dy", "2.5em")
+      .style("font-size", "14px")
+      .style("fill", "#666")
+      .text("Complete");
+
+  }, [data, colors, size]);
+
+  return <svg ref={ref}></svg>;
+}
+
 function Dashboard() {
   const [data, setData] = useState(null);
   const [logData, setLogData] = useState(null);
@@ -64,62 +123,50 @@ function Dashboard() {
   const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
   const todayLogs = Array.isArray(logData)
-  ? logData.filter((log) => {
-    const logDate = new Date(log.timestamp);
-    const localDate = new Date(logDate.getFullYear(), logDate.getMonth(), logDate.getDate());
-    return localDate.getTime() === todayDate.getTime();
-  }) : [];
+    ? logData.filter((log) => {
+      const logDate = new Date(log.timestamp);
+      const localDate = new Date(logDate.getFullYear(), logDate.getMonth(), logDate.getDate());
+      return localDate.getTime() === todayDate.getTime();
+    }) : [];
 
+  // Calculate current values with safety checks
   const stepsTaken = todayLogs.reduce((sum, log) => sum + Number(log.stepCount || 0), 0) / 100;
   const waterDrank = todayLogs.reduce((sum, log) => sum + Number(log.waterIntake || 0), 0) / 8;
-  const caloriesBurned = todayLogs.reduce((sum, log) => sum + Number(log.caloriesBurned || 0), 0)/ 10;
-
+  const caloriesBurned = todayLogs.reduce((sum, log) => sum + Number(log.caloriesBurned || 0), 0) / 10;
 
   const targetSteps = 10000;
-  const targetWater = 8;      // in cups
+  const targetWater = 8;      // cups
   const targetCalories = 2000;
+
+  // Ensure remaining is never negative
+  const clamp = (val) => (val < 0 ? 0 : val);
+
+  const chartData = {
+    steps: [stepsTaken, clamp(targetSteps - stepsTaken)],
+    water: [waterDrank, clamp(targetWater - waterDrank)],
+    calories: [caloriesBurned, clamp(targetCalories - caloriesBurned)],
+  };
+
+  const colors = {
+  steps: ["#4caf50", "#c8e6c9"],       // green and light green (no change)
+  water: ["#2196f3", "#bbdefb"],       // blue and light blue (no change)
+  calories: ["#e91e63", "#f8bbd0"],    // pink and light pink (updated)
+};
 
   const handleChartChange = (e) => {
     const value = e.target.value;
     setSelectedCharts(typeof value === "string" ? value.split(",") : value);
   };
 
-  
-  const chartConfigs = {
-  steps: configs(
-    ["Taken", "Remaining"],
-    {
-      label: "Steps",
-      data: [stepsTaken, Math.max(0, targetSteps - stepsTaken)],
-      backgroundColors: ["success", "light"],
-    },
-    70,
-  ),
-  water: configs(
-    ["Drank", "Remaining"],
-    {
-      label: "Water",
-      data: [waterDrank, Math.max(0, targetWater - waterDrank)],
-      backgroundColors: ["info", "light"],
-    },
-    70,
-  ),
-  calories: configs(
-    ["Burned", "Remaining"],
-    {
-      label: "Calories",
-      data: [caloriesBurned, Math.max(0, targetCalories - caloriesBurned)],
-      backgroundColors: ["primary", "light"],
-    },
-    70,
-  ),
-};
+  const units = {
+    steps: "steps",
+    water: "cups",
+    calories: "calories",
+  };
 
   return (
     <>
       <div style={{ padding: 16 }}>
-        <h4 style={{ marginBottom: 16 }}></h4>
-
         {/* Cards container */}
         <div style={{
           display: "flex",
@@ -149,21 +196,19 @@ function Dashboard() {
           />
         </div>
 
-        {/* Donut Charts Section */}
-        
+        {/* Select Metrics */}
         <div
           style={{
             marginTop: 48,
             display: "flex",
             flexDirection: "column",
-            alignItems: "center", // centers content horizontally
+            alignItems: "center",
           }}
         >
           <h4 style={{ marginBottom: 24, fontSize: "1.75rem", textAlign: "center" }}>
             Select Metrics to Display
           </h4>
 
-          {/* Dropdown */}
           <div style={{ marginBottom: 24, maxWidth: 350, width: "100%" }}>
             <Select
               multiple
@@ -172,9 +217,7 @@ function Dashboard() {
               fullWidth
               MenuProps={{
                 PaperProps: {
-                  style: {
-                    textAlign: "center",
-                  },
+                  style: { textAlign: "center" }
                 },
                 MenuListProps: {
                   style: {
@@ -182,103 +225,48 @@ function Dashboard() {
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                  },
-                },
+                  }
+                }
               }}
-              sx={{
-                textAlign: "center",
-              }}
+              sx={{ textAlign: "center" }}
             >
-              <MenuItem
-                value="steps"
-                sx={{
-                  justifyContent: "center",
-                  textAlign: "center",
-                  fontSize: "1.25rem",  // bigger text
-                  width: "100%",        // full width
-                  "&:hover": {
-                    // backgroundColor: "rgba(25, 118, 210, 0.08)", // typical MUI hover color
-                    width: "100%",
-                  },
-                }}
-              >
-                Steps
-              </MenuItem>
-              <MenuItem
-                value="water"
-                sx={{
-                  justifyContent: "center",
-                  textAlign: "center",
-                  fontSize: "1.25rem",
-                  width: "100%",
-                  "&:hover": {
-                    // backgroundColor: "rgba(25, 118, 210, 0.08)",
-                    width: "100%",
-                  },
-                }}
-              >
-                Water Intake
-              </MenuItem>
-              <MenuItem
-                value="calories"
-                sx={{
-                  justifyContent: "center",
-                  textAlign: "center",
-                  fontSize: "1.25rem",
-                  width: "100%",
-                  "&:hover": {
-                    // backgroundColor: "rgba(25, 118, 210, 0.08)",
-                    width: "100%",
-                  },
-                }}
-              >
-                Calories Burned
-              </MenuItem>
+              <MenuItem value="steps" sx={{ justifyContent: "center", fontSize: "1.25rem", width: "100%" }}>Steps</MenuItem>
+              <MenuItem value="water" sx={{ justifyContent: "center", fontSize: "1.25rem", width: "100%" }}>Water Intake</MenuItem>
+              <MenuItem value="calories" sx={{ justifyContent: "center", fontSize: "1.25rem", width: "100%" }}>Calories Burned</MenuItem>
             </Select>
-
-
           </div>
         </div>
 
-        <div>
-          {/* Doughnut charts */}
-          <Grid container spacing={13}>
-            {selectedCharts.map((metric) => {
-              const config = chartConfigs[metric];
-              const current = config.data.datasets[0].data[0];
-              const remaining = config.data.datasets[0].data[1];
-              const total = current + remaining;
-              const percent = ((current / total) * 100).toFixed(1);
+        {/* Donut Charts */}
+        <Grid container spacing={6} justifyContent="center">
+          {selectedCharts.map(metric => {
+            const [taken, remaining] = chartData[metric];
+            const total = taken + remaining;
+            const unit = units[metric];
+            const percent = total > 0 ? Math.round((taken / total) * 100) : 0;
 
-              let unit = "";
-              if (metric === "steps") unit = "steps";
-              else if (metric === "water") unit = "cups";
-              else if (metric === "calories") unit = "calories";
+            return (
+              <Grid item xs={12} md={4} key={metric} style={{ textAlign: "center" }}>
+                <h3 style={{ marginBottom: 8, fontWeight: "600" }}>
+                  {metric.charAt(0).toUpperCase() + metric.slice(1)} Progress
+                </h3>
 
-              return (
-                <Grid item xs={12} md={4} key={metric}>
-                  <div style={{ padding: 24, textAlign: "center" }}>
-                    <DefaultDoughnutChart
-                      title={config.data.datasets?.[0]?.label || "Progress Overview"}
-                      description=""
-                      height="25rem"
-                      chart={{
-                        data: config.data,
-                        options: config.options,
-                      }}
-                    />
-                    <div style={{ marginTop: 16, fontSize: 18, fontWeight: 600 }}>
-                      {Math.round(current)} / {total} {unit}
-                    </div>
-                    <div style={{ color: "#666", fontWeight: "normal" }}>
-                      {percent}% complete
-                    </div>
-                  </div>
-                </Grid>
-              );
-            })}
-          </Grid>
-        </div>
+                <DonutChart
+                  data={[taken, remaining]}
+                  colors={colors[metric]}
+                  size={400}
+                />
+
+                <div style={{ marginTop: 12, fontSize: 18, fontWeight: 600 }}>
+                  {Math.round(taken)} / {Math.round(total)} {unit}
+                </div>
+                <div style={{ color: "#666", fontWeight: "normal" }}>
+                  {percent}% complete
+                </div>
+              </Grid>
+            );
+          })}
+        </Grid>
       </div>
       <Footer company={{ href: "https://yourcompany.com", name: "FitBot" }} />
     </>
