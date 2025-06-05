@@ -74,29 +74,7 @@ const GOAL_CONFIG = {
   "Water Intake": { key: "waterIntake", unit: "cups", target: 8 },
 };
 
-// const GOAL_COLORS = {
-//   "Steps Taken": {
-//     barColor: "#4caf50",      // MUI green for "success"
-//     lineColor: "rgba(76, 175, 80, 0.5)",
-//   },
-//   "Water Intake": {
-//     barColor: "#29b6f6",      // MUI light blue for "info"
-//     lineColor: "rgba(41, 182, 246, 0.5)",
-//   },
-//   "Calories Burned": {
-//     barColor: "#ef5350",      // MUI red for "primary"
-//     lineColor: "rgba(239, 83, 80, 0.4)",
-//   },
-//   // Add fallback/defaults if needed
-//   "Exercise Duration": {
-//     barColor: "#ab47bc",      // purple
-//     lineColor: "rgba(171, 71, 188, 0.4)",
-//   },
-//   "Distance Covered": {
-//     barColor: "#ffa726",      // orange
-//     lineColor: "rgba(255, 167, 38, 0.4)",
-//   },
-// };
+
 const GOAL_COLORS = {
   "Steps Taken": {
     barColor: "#98EC2E", // success (green) #98EC2E "#4caf50"
@@ -120,6 +98,21 @@ const GOAL_COLORS = {
     lineColor: "rgba(255, 167, 38, 0.4)",
   },
 };
+async function retryFetch(url, options = {}, retries = 3, delay = 1000) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const res = await fetch(url, options);
+      if (!res.ok) throw new Error(`HTTP error: ${res.status}`);
+      return await res.json();
+    } catch (err) {
+      if (i < retries - 1) {
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      } else {
+        throw err;
+      }
+    }
+  }
+}
 
 
 export default function ShowGoals() {
@@ -128,25 +121,23 @@ export default function ShowGoals() {
   const [error, setError] = useState(null);
   const [selectedGoal, setSelectedGoal] = useState("Calories Burned");
 
+ 
   const fetchLogs = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const userResponse = await fetch("http://localhost:3001/users");
-      if (!userResponse.ok) throw new Error("Failed to fetch users");
-      const users = await userResponse.json();
-      console.log("users =", users);
-      const logsResponse = await fetch("http://localhost:3001/activitylogs");
-      if (!logsResponse.ok) throw new Error("Failed to fetch logs");
-      const logsData = await logsResponse.json();
-      const alyssaLogs = logsData.filter((log) => log.user === "alyssa");
-      setLogs(alyssaLogs);
-    } catch (err) {
-      setError(err.message || "Unknown error");
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  setLoading(true);
+  setError(null);
+  try {
+    const users = await retryFetch("http://localhost:3001/users");
+    console.log("users =", users);
+    const logsData = await retryFetch("http://localhost:3001/activitylogs");
+    const alyssaLogs = logsData.filter((log) => log.user === "alyssa");
+    setLogs(alyssaLogs);
+  } catch (err) {
+    setError(err.message || "Unknown error");
+  } finally {
+    setLoading(false);
+  }
+}, []);
+
 
   useEffect(() => {
     fetchLogs();
@@ -361,19 +352,20 @@ export default function ShowGoals() {
     }),
     []
   );
-
-  if (loading)
-    return (
-      <Grid container justifyContent="center" alignItems="center" style={{ minHeight: 200 }}>
-        <CircularProgress />
-      </Grid>
-    );
-  if (error)
-    return (
-      <Alert severity="error" variant="outlined" style={{ margin: 20 }}>
-        {error}
-      </Alert>
-    );
+  if (loading) return <p>Loading goal data...</p>;
+  if (error) return <p>Error: {error}</p>;
+  // if (loading)
+  //   return (
+  //     <Grid container justifyContent="center" alignItems="center" style={{ minHeight: 200 }}>
+  //       <CircularProgress />
+  //     </Grid>
+  //   );
+  // if (error)
+  //   return (
+  //     <Alert severity="error" variant="outlined" style={{ margin: 20 }}>
+  //       {error}
+  //     </Alert>
+  //   );
 
   return (
     <Grid container spacing={2} sx={{ px: 2, py: 3 }}>

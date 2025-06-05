@@ -6,6 +6,7 @@ import torch.optim as optim
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.ticker import LogLocator, NullFormatter
 
 class FitBotDataset(Dataset):
     def __init__(self, csv_path):
@@ -64,7 +65,7 @@ def train_one_epoch(model, dataloader, optimizer, loss_fn):
     return total_loss / len(dataloader.dataset)
 
 def main():
-    csv_path = "C:/Users/mdhar/OneDrive/Documents/FitBot/FitBot/fitbot/backend/calories_output.csv"
+    csv_path = "./calories_output.csv"
 
     dataset = FitBotDataset(csv_path)
     input_dim = dataset.X.shape[1]
@@ -93,10 +94,14 @@ def main():
     plt.yscale('symlog', linthresh=1)  # linear between -1 and 1, log beyond
     
     # Set y ticks exactly at 0, 10, 100, 1000
-    plt.yticks([0, 10, 100, 1000], ['0', '10', '100', '1000'])
-    
+    # plt.yticks([0, 10, 100, 1000], ['0', '10', '100', '1000'])
+    plt.yscale('symlog', linthresh=1)
+    # Use a log locator for positive ticks only, skipping very small values
+    plt.gca().yaxis.set_major_locator(LogLocator(base=10, subs=(1.0,), numticks=10))
+    plt.grid(True, which='both', axis='y', linestyle='--', linewidth=0.5)
+
     plt.xlim(1, epochs)
-    plt.grid(True, which='both', linestyle='--', linewidth=0.5)
+    # plt.grid(True, which='both', linestyle='--', linewidth=0.5)
     plt.show()
 
 if __name__ == "__main__":
