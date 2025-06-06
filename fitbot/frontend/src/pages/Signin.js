@@ -1,203 +1,80 @@
-// import React from "react";
-// import SoftBox from "../components/SoftBox";
-// import SoftTypography from "../components/SoftTypography";
-
-// function SignIn() {
-//   return (
-//     <SoftBox p={3}>
-//       <SoftTypography variant="h3" fontWeight="bold">
-//         Sign In Page
-//       </SoftTypography>
-//       <SoftTypography variant="body1">
-//         This is where your sign-in form will go.
-//       </SoftTypography>
-//     </SoftBox>
-//   );
-// }
-
-// export default SignIn;
-
-// import React, { useState } from "react";
-// import { useNavigate } from "react-router-dom";
-// import { Container, TextField, Button, Box, Typography, Paper } from "@mui/material";
-
-// function SignIn() {
-//   const [username, setUsername] = useState("");
-//   const [password, setPassword] = useState("");
-//   const navigate = useNavigate();
-
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-//     // Here you would handle authentication logic
-//     console.log("Username:", username);
-//     console.log("Password:", password);
-//     // Example: Navigate to dashboard after login
-//     navigate("/");
-//   };
-
-//   return (
-//     <Container maxWidth="sm" sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
-//       <Paper elevation={3} sx={{ padding: 4, width: "100%" }}>
-//         <Typography variant="h4" align="center" gutterBottom>
-//           Sign In
-//         </Typography>
-//         <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-//           <TextField
-//             label="Username"
-//             variant="outlined"
-//             fullWidth
-//             value={username}
-//             onChange={(e) => setUsername(e.target.value)}
-//             required
-//           />
-//           <TextField
-//             label="Password"
-//             type="password"
-//             variant="outlined"
-//             fullWidth
-//             value={password}
-//             onChange={(e) => setPassword(e.target.value)}
-//             required
-//           />
-//           <Button type="submit" variant="contained" color="primary" fullWidth>
-//             Sign In
-//           </Button>
-//         </Box>
-//       </Paper>
-//     </Container>
-//   );
-// }
-
-// export default SignIn;
-
-// import React, { useState } from "react";
-// import { useNavigate } from "react-router-dom";
-// import { Container, TextField, Button, Box, Typography, Paper } from "@mui/material";
-
-// function SignIn() {
-//   const [username, setUsername] = useState("");
-//   const [password, setPassword] = useState("");
-//   const navigate = useNavigate();
-
-//   const handleSubmit = (e) => {
-//     e.preventDefault();
-//     // Check if user already exists (simulating a basic login system)
-//     const storedUser = JSON.parse(localStorage.getItem(username));
-//     if (storedUser && storedUser.password === password) {
-//       localStorage.setItem("currentUser", username); // Save current logged-in user
-//       navigate("/settings");
-//     } else {
-//       alert("Invalid username or password!");
-//     }
-//   };
-
-//   return (
-//     <Container maxWidth="sm" sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
-//       <Paper elevation={3} sx={{ padding: 4, width: "100%" }}>
-//         <Typography variant="h4" align="center" gutterBottom>
-//           Sign In
-//         </Typography>
-//         <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-//           <TextField
-//             label="Username"
-//             variant="outlined"
-//             fullWidth
-//             value={username}
-//             onChange={(e) => setUsername(e.target.value)}
-//             required
-//           />
-//           <TextField
-//             label="Password"
-//             type="password"
-//             variant="outlined"
-//             fullWidth
-//             value={password}
-//             onChange={(e) => setPassword(e.target.value)}
-//             required
-//           />
-//           <Button type="submit" variant="contained" color="primary" fullWidth>
-//             Sign In
-//           </Button>
-//         </Box>
-//       </Paper>
-//     </Container>
-//   );
-// }
-
-// export default SignIn;
 
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Container, TextField, Button, Box, Typography, Paper } from "@mui/material";
 
 function SignIn() {
+  // State to hold username and password inputs
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // Hook for programmatic navigation
 
-  // const handleSubmit = (e) => {
-  //   e.preventDefault();
-  //   // Get the stored user data from localStorage
-  //   const storedUser = JSON.parse(localStorage.getItem(username));
-  //   if (storedUser && storedUser.password === password) {
-  //     // Store the logged-in user in localStorage for the session
-  //     localStorage.setItem("currentUser", username);
-  //     navigate("/settings");
-  //   } else {
-  //     alert("Invalid username or password!");
-  //   }
-  // };
+  // Handle form submission for sign-in
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevent default form submit behavior (page reload)
     try {
+      // Send POST request to sign-in API with username and password
       const res = await fetch("http://localhost:3001/api/auth/sign-in", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
       });
-  
-      const data = await res.json();
+
+      const data = await res.json(); // Parse JSON response
+      
+      // If response is not OK, throw error with message from server or generic message
       if (!res.ok) throw new Error(data.message || "Login failed");
-  
-      localStorage.setItem("currentUser", username); // optional: store session user
+
+      // Save logged-in username to localStorage to keep session info
+      localStorage.setItem("currentUser", username);
+
+      // Navigate user to the settings page after successful login
       navigate("/settings");
     } catch (err) {
+      // Show alert on any errors (network, validation, etc.)
       alert(err.message);
     }
   };
-  
 
   return (
+    // Center container for the sign-in form
     <Container maxWidth="sm" sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
       <Paper elevation={3} sx={{ padding: 4, width: "100%" }}>
         <Typography variant="h4" align="center" gutterBottom>
           Sign In
         </Typography>
+
+        {/* Form for username and password inputs */}
         <Box component="form" onSubmit={handleSubmit} sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           <TextField
             label="Username"
             variant="outlined"
             fullWidth
             value={username}
-            onChange={(e) => setUsername(e.target.value)}
+            onChange={(e) => setUsername(e.target.value)} // Update username state on input
             required
           />
+
           <TextField
             label="Password"
             type="password"
             variant="outlined"
             fullWidth
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value)} // Update password state on input
             required
           />
+
+          {/* Submit button triggers handleSubmit */}
           <Button type="submit" variant="contained" color="primary" fullWidth>
             Sign In
           </Button>
-          <Link to ="/sign-up">
-            <Button type="submit" variant="contained" color="primary" fullWidth>
-            Sign Up
-          </Button>
+
+          {/* Link to sign-up page with a button */}
+          <Link to="/sign-up">
+            <Button variant="contained" color="primary" fullWidth>
+              Sign Up
+            </Button>
           </Link>
         </Box>
       </Paper>
@@ -206,4 +83,5 @@ function SignIn() {
 }
 
 export default SignIn;
+
 

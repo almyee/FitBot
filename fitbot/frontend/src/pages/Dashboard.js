@@ -7,6 +7,7 @@ import MenuItem from "@mui/material/MenuItem";
 import Grid from "@mui/material/Grid";
 import Footer from "../examples/Footer";
 
+// Reusable clickable card component for dashboard shortcuts
 function SquareCard({ title, icon, onClick }) {
   return (
     <div
@@ -39,7 +40,7 @@ function SquareCard({ title, icon, onClick }) {
   );
 }
 
-// D3 DonutChart component
+// D3-based DonutChart component to visualize completion percentages
 function DonutChart({ data, colors, size = 200 }) {
   const ref = useRef();
 
@@ -60,6 +61,7 @@ function DonutChart({ data, colors, size = 200 }) {
     const svg = d3.select(ref.current);
     svg.selectAll("*").remove(); // Clear previous renders
 
+    // Create the donut arcs
     svg
       .attr("width", size)
       .attr("height", size)
@@ -73,7 +75,7 @@ function DonutChart({ data, colors, size = 200 }) {
       .attr("stroke", "#fff")
       .style("stroke-width", "2px");
 
-    // Add text label for percentage in center
+    // Add center text: percent complete
     const total = d3.sum(data);
     const taken = data[0];
     const percent = total > 0 ? Math.round((taken / total) * 100) : 0;
@@ -87,7 +89,7 @@ function DonutChart({ data, colors, size = 200 }) {
       .style("font-weight", "bold")
       .text(`${percent}%`);
 
-    // Add label below percentage
+    // Label below percentage
     g.append("text")
       .attr("text-anchor", "middle")
       .attr("dy", "2.5em")
@@ -105,6 +107,7 @@ function Dashboard() {
   const [logData, setLogData] = useState(null);
   const [selectedCharts, setSelectedCharts] = useState(["steps"]);
 
+  // Fetch summary data on mount
   useEffect(() => {
     fetch("http://localhost:3001/summary")
       .then((response) => response.json())
@@ -112,6 +115,7 @@ function Dashboard() {
       .catch((error) => console.error("Error fetching data:", error));
   }, []);
 
+  // Fetch activity logs on mount
   useEffect(() => {
     fetch("http://localhost:3001/activitylogs")
       .then((response) => response.json())
@@ -119,9 +123,11 @@ function Dashboard() {
       .catch((error) => console.error("Error fetching logs:", error));
   }, []);
 
+  // Get today's date (with time zeroed out)
   const today = new Date();
   const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
 
+  // Filter logs to only those from today
   const todayLogs = Array.isArray(logData)
     ? logData.filter((log) => {
       const logDate = new Date(log.timestamp);
@@ -129,30 +135,34 @@ function Dashboard() {
       return localDate.getTime() === todayDate.getTime();
     }) : [];
 
-  // Calculate current values with safety checks
+  // Aggregate today's step count, water intake, and calories burned (with normalization)
   const stepsTaken = todayLogs.reduce((sum, log) => sum + Number(log.stepCount || 0), 0) / 100;
   const waterDrank = todayLogs.reduce((sum, log) => sum + Number(log.waterIntake || 0), 0) / 8;
   const caloriesBurned = todayLogs.reduce((sum, log) => sum + Number(log.caloriesBurned || 0), 0) / 10;
 
+  // Target goals for metrics
   const targetSteps = 10000;
   const targetWater = 8;      // cups
   const targetCalories = 2000;
 
-  // Ensure remaining is never negative
+  // Clamp negative values to zero
   const clamp = (val) => (val < 0 ? 0 : val);
 
+  // Data arrays for donut charts: [taken, remaining]
   const chartData = {
     steps: [stepsTaken, clamp(targetSteps - stepsTaken)],
     water: [waterDrank, clamp(targetWater - waterDrank)],
     calories: [caloriesBurned, clamp(targetCalories - caloriesBurned)],
   };
 
+  // Color schemes for each chart
   const colors = {
-  steps: ["#4caf50", "#c8e6c9"],       // green and light green (no change)
-  water: ["#2196f3", "#bbdefb"],       // blue and light blue (no change)
-  calories: ["#e91e63", "#f8bbd0"],    // pink and light pink (updated)
-};
+    steps: ["#4caf50", "#c8e6c9"],       // green shades
+    water: ["#2196f3", "#bbdefb"],       // blue shades
+    calories: ["#e91e63", "#f8bbd0"],    // pink shades
+  };
 
+  // Handle changes to which charts are selected
   const handleChartChange = (e) => {
     const value = e.target.value;
     setSelectedCharts(typeof value === "string" ? value.split(",") : value);
@@ -167,7 +177,7 @@ function Dashboard() {
   return (
     <>
       <div style={{ padding: 16 }}>
-        {/* Cards container */}
+        {/* Cards Section */}
         <div style={{
           display: "flex",
           justifyContent: "space-around",
@@ -196,7 +206,7 @@ function Dashboard() {
           />
         </div>
 
-        {/* Select Metrics */}
+        {/* Select Metrics Section */}
         <div
           style={{
             marginTop: 48,
@@ -237,7 +247,7 @@ function Dashboard() {
           </div>
         </div>
 
-        {/* Donut Charts */}
+        {/* Donut Charts Section */}
         <Grid container spacing={6} justifyContent="center">
           {selectedCharts.map(metric => {
             const [taken, remaining] = chartData[metric];
@@ -268,9 +278,11 @@ function Dashboard() {
           })}
         </Grid>
       </div>
+
       <Footer company={{ href: "https://yourcompany.com", name: "FitBot" }} />
     </>
   );
 }
 
 export default Dashboard;
+
