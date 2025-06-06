@@ -1,10 +1,3 @@
-
-
-// // D3 components
-// import D3DoughnutChart from "./D3DoughnutChart" //"../../../../components/D3Charts/D3DoughnutChart";
-// import D3BarChart from "./D3BarChart" //"../../../../components/D3Charts/D3BarChart";
-// import D3LineChart from "./D3LineChart" //"../../../../components/D3Charts/D3ZoomableLineChart";
-
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import * as d3 from "d3";
 import Grid from "@mui/material/Grid";
@@ -142,7 +135,6 @@ export default function ShowWaterIntake() {
       .attr("dy", "0.35em")
       .style("font-size", "16px")
       .style("font-weight", "bold");
-
   }, [totalCupsToday, loading]);
 
   useEffect(() => {
@@ -170,12 +162,8 @@ export default function ShowWaterIntake() {
       .nice()
       .range([height, 0]);
 
-    g.append("g")
-      .call(d3.axisLeft(y));
-
-    g.append("g")
-      .attr("transform", `translate(0, ${height})`)
-      .call(d3.axisBottom(x));
+    g.append("g").call(d3.axisLeft(y));
+    g.append("g").attr("transform", `translate(0, ${height})`).call(d3.axisBottom(x));
 
     g.selectAll("rect")
       .data(weeklyCups)
@@ -216,8 +204,19 @@ export default function ShowWaterIntake() {
       .y(d => y(d.value))
       .curve(d3.curveMonotoneX);
 
+    const area = d3.area()
+      .x(d => x(new Date(d.date)))
+      .y0(height)
+      .y1(d => y(d.value))
+      .curve(d3.curveMonotoneX);
+
     svg.append("g").call(d3.axisLeft(y));
     svg.append("g").attr("transform", `translate(0, ${height})`).call(d3.axisBottom(x));
+
+    svg.append("path")
+      .datum(monthlyCups)
+      .attr("fill", "#bbdefb")
+      .attr("d", area);
 
     svg.append("path")
       .datum(monthlyCups)
@@ -226,6 +225,16 @@ export default function ShowWaterIntake() {
       .attr("stroke-width", 2)
       .attr("d", line);
 
+    svg.selectAll("circle")
+      .data(monthlyCups)
+      .enter()
+      .append("circle")
+      .attr("cx", d => x(new Date(d.date)))
+      .attr("cy", d => y(d.value))
+      .attr("r", 3)
+      .attr("fill", "#1976d2")
+      .attr("stroke", "white")
+      .attr("stroke-width", 1);
   }, [monthlyCups, loading]);
 
   if (loading) return <p>Loading water intake data…</p>;
