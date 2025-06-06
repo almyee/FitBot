@@ -1,3 +1,16 @@
+"""
+FitBot Calorie Burn Prediction using a PyTorch Neural Network
+
+This script loads workout/fitness data from a CSV file and trains a feedforward neural network
+to predict calories burned. The process includes:
+1. Loading and preprocessing the dataset using a custom PyTorch Dataset class.
+2. Defining a simple feedforward neural network architecture.
+3. Training the model using mean squared error (MSE) loss.
+4. Plotting the training loss curve using a symmetric log (symlog) scale for better visualization of trends.
+
+Note: This script assumes the target column is 'caloriesBurnedCalculated'.
+"""
+
 import pandas as pd
 import torch
 from torch.utils.data import Dataset, DataLoader

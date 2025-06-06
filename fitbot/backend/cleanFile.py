@@ -1,3 +1,13 @@
+"""
+This script adds a random timestamp in the year 2025 to each row of a fitness CSV dataset.
+
+Steps:
+1. Loads a CSV file named 'sample_workout_fitness.csv' using pandas.
+2. Generates a random ISO 8601-formatted timestamp within the year 2025 for each row.
+3. Appends this timestamp as a new column called 'timestamp'.
+4. Saves the modified DataFrame to a new file named 'modified_file.csv'.
+"""
+
 import pandas as pd
 import random
 from datetime import datetime, timedelta
