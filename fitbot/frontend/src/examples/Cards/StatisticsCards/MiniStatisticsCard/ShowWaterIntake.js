@@ -1,9 +1,9 @@
 
 
-// D3 components
-import D3DoughnutChart from "./D3DoughnutChart" //"../../../../components/D3Charts/D3DoughnutChart";
-import D3BarChart from "./D3BarChart" //"../../../../components/D3Charts/D3BarChart";
-import D3LineChart from "./D3LineChart" //"../../../../components/D3Charts/D3ZoomableLineChart";
+// // D3 components
+// import D3DoughnutChart from "./D3DoughnutChart" //"../../../../components/D3Charts/D3DoughnutChart";
+// import D3BarChart from "./D3BarChart" //"../../../../components/D3Charts/D3BarChart";
+// import D3LineChart from "./D3LineChart" //"../../../../components/D3Charts/D3ZoomableLineChart";
 
 import React, { useEffect, useState, useMemo, useRef } from "react";
 import * as d3 from "d3";
