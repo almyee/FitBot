@@ -18,5 +18,6 @@ Tech Stack (MERN):
 - Node.js as the runtime environment for the backend
 
 
-To run the front
+## Setup Instructions
+Please read the "README.md" file inside the <code>fitbot</code> repository for the setup instructions. Thank you!
 
