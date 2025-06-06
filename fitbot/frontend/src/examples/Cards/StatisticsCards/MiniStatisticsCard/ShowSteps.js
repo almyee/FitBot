@@ -1,4 +1,3 @@
-
 import React, { useMemo, useState, useEffect, useRef } from "react";
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
@@ -56,18 +55,21 @@ export default function ShowSteps() {
     return new Date(now.getFullYear(), now.getMonth(), now.getDate());
   }, []);
 
-  // Total steps today
+  // --- STEP COUNTS ARE DIVIDED BY 100 HERE ONCE ---
+
+  // Total steps today (scaled)
   const totalStepsToday = useMemo(() => {
-    return logs
+    const totalRaw = logs
       .filter((log) => {
         if (!log.timestamp) return false;
         const date = parseLocalDate(log.timestamp);
         return isSameDay(date, today);
       })
       .reduce((sum, log) => sum + Number(log.stepCount || 0), 0);
+    return totalRaw / 10000;
   }, [logs, today]);
 
-  // Weekly steps array Sun-Sat
+  // Weekly steps array Sun-Sat (scaled)
   const weeklySteps = useMemo(() => {
     const weekStart = getWeekStart(today);
     const steps = Array(7).fill(0);
@@ -78,10 +80,11 @@ export default function ShowSteps() {
         steps[date.getDay()] += Number(log.stepCount || 0);
       }
     });
-    return steps;
+    // Divide by 100 once here
+    return steps.map((v) => v / 100);
   }, [logs, today]);
 
-  // Monthly steps for last 30 days
+  // Monthly steps for last 30 days (scaled)
   const monthlySteps = useMemo(() => {
     const stepsByDate = {};
     const end = new Date();
@@ -102,15 +105,16 @@ export default function ShowSteps() {
       const date = new Date(start);
       date.setDate(start.getDate() + i);
       const key = date.toISOString().slice(0, 10);
-      result.push({ date: key, value: stepsByDate[key] || 0 });
+      const value = stepsByDate[key] || 0;
+      result.push({ date: key, value: value / 100 }); // scaled here
     }
     return result;
   }, [logs]);
 
-  // Goal steps for doughnut chart
-  const stepGoal = 10000;
+  // Step goal scaled
+  const stepGoal = 10000 / 100; // 100
 
-  // Doughnut chart (steps today)
+  // ---------------- DOUGHNUT CHART ------------------
   useEffect(() => {
     if (loading || !doughnutRef.current) return;
 
@@ -127,7 +131,7 @@ export default function ShowSteps() {
       .attr("transform", `translate(${width / 2},${height / 2})`);
 
     const data = [totalStepsToday, Math.max(stepGoal - totalStepsToday, 0)];
-    const color = d3.scaleOrdinal().range(["#388e3c", "#e0e0e0"]); // green & light gray
+    const color = d3.scaleOrdinal().range(["#388e3c", "#e0e0e0"]);
 
     const pie = d3.pie();
     const arc = d3.arc().innerRadius(70).outerRadius(radius);
@@ -140,16 +144,17 @@ export default function ShowSteps() {
       .attr("d", arc)
       .attr("fill", (d, i) => color(i));
 
+    // Show original step counts by multiplying back by 100
     svg
       .append("text")
-      .text(`${totalStepsToday}/${stepGoal} steps`)
+      .text(`${Math.round(totalStepsToday * 100)}/${stepGoal * 100} steps`)
       .attr("text-anchor", "middle")
       .attr("dy", "0.35em")
       .style("font-size", "16px")
       .style("font-weight", "bold");
   }, [totalStepsToday, loading]);
 
-  // Bar chart (weekly steps)
+  // ---------------- BAR CHART (WEEKLY) ------------------
   useEffect(() => {
     if (loading || !barRef.current) return;
 
@@ -166,9 +171,10 @@ export default function ShowSteps() {
       .append("g")
       .attr("transform", `translate(${margin.left},${margin.top})`);
 
+    const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const x = d3
       .scaleBand()
-      .domain(["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"])
+      .domain(days)
       .range([0, width])
       .padding(0.2);
 
@@ -185,14 +191,14 @@ export default function ShowSteps() {
       .data(weeklySteps)
       .enter()
       .append("rect")
-      .attr("x", (_, i) => x(["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][i]))
+      .attr("x", (_, i) => x(days[i]))
       .attr("y", (d) => y(d))
       .attr("width", x.bandwidth())
       .attr("height", (d) => height - y(d))
-      .attr("fill", "#4caf50"); // green 500
+      .attr("fill", "#4caf50");
   }, [weeklySteps, loading]);
 
-  // Line chart (monthly steps)
+  // ---------------- LINE CHART (MONTHLY) ------------------
   useEffect(() => {
     if (loading || !lineRef.current) return;
 
@@ -213,9 +219,11 @@ export default function ShowSteps() {
       .domain(d3.extent(monthlySteps, (d) => new Date(d.date)))
       .range([0, width]);
 
+    const maxY = d3.max(monthlySteps, (d) => d.value) || 1;
+
     const y = d3
       .scaleLinear()
-      .domain([0, d3.max(monthlySteps, (d) => d.value) || 1])
+      .domain([0, maxY])
       .nice()
       .range([height, 0]);
 
@@ -225,16 +233,41 @@ export default function ShowSteps() {
       .y((d) => y(d.value))
       .curve(d3.curveMonotoneX);
 
+    const area = d3
+      .area()
+      .x((d) => x(new Date(d.date)))
+      .y0(height)
+      .y1((d) => y(d.value))
+      .curve(d3.curveMonotoneX);
+
     svg.append("g").call(d3.axisLeft(y));
     svg.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x));
 
     svg
       .append("path")
       .datum(monthlySteps)
+      .attr("fill", "#c8e6c9")
+      .attr("d", area);
+
+    svg
+      .append("path")
+      .datum(monthlySteps)
       .attr("fill", "none")
-      .attr("stroke", "#388e3c") // green 700
+      .attr("stroke", "#388e3c")
       .attr("stroke-width", 2)
       .attr("d", line);
+
+    svg
+      .selectAll("circle")
+      .data(monthlySteps)
+      .enter()
+      .append("circle")
+      .attr("cx", (d) => x(new Date(d.date)))
+      .attr("cy", (d) => y(d.value))
+      .attr("r", 4)
+      .attr("fill", "#388e3c")
+      .attr("stroke", "#fff")
+      .attr("stroke-width", 1.5);
   }, [monthlySteps, loading]);
 
   if (loading) return <p>Loading step count data…</p>;
