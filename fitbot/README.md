@@ -1,25 +1,90 @@
-# Getting Started with Create React App
+<h1>Getting Started with Create React App</h1>
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+<!-------------------------- RUNNING BACKEND INSTRUCTIONS --------------------------> 
+<h2>Part 1: Running the Backend Directory</h2>
+<h3> Available Scripts</h3>
 
-## Available Scripts
+<p>
+Navigate to the <code>backend</code> directory in your terminal. Once you're there, install the required Node.js dependencies by running:
+</p>
 
-In the project directory, you can run:
+<pre><code>npm install</code></pre>
 
-### `npm start`
+<p>
+This command will read from the <code>package.json</code> file and install the following backend libraries:
+</p>
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+<ul>
+  <li><b>axios</b> – for making HTTP requests</li>
+  
+  <li><b>cors</b> – to enable Cross-Origin Resource Sharing</li>
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+  <li><b>dotenv</b> – to load environment variables from a <code>.env</code> file</li>
 
-### `npm test`
+  <li><b>express</b> – a web framework used to create the API</li>
+
+  <li><b>mongoose</b> – an ODM (Object Data Modeling) library for MongoDB</li>
+</ul>
+
+<p>
+    <b>Note:</b> These libraries are required for the backend server to function correctly.
+</p>
+
+<p>
+After the installation is complete, you can start the backend server by running:
+</p>
+
+<pre><code>node server.js</code></pre>
+
+<p>
+This command launches the backend server and establishes a connection to your MongoDB Atlas database using the URI stored in your <code>.env</code> file. 
+The backend handles API requests from the frontend, interacts with the database, and sends responses back to the client.
+</p>
+
+<p>
+Once the server is running, you’ll see logs in the terminal reflecting backend activity (such as connection status, API requests, or errors).
+</p>
+
+<!-------------------------- RUNNING FRONTEND INSTRUCTIONS --------------------------> 
+<h2>Part 2: Running the Frontend Directory</h2>
+<h3> Available Scripts</h3>
+
+<p>
+Navigate to the <code>frontend</code> directory in your terminal. Once you're there, install all necessary frontend dependencies by running:
+</p>
+
+<pre><code>npm install</code></pre>
+
+<p>
+This command reads from the <code>package.json</code> file and installs all the required packages and libraries for the frontend React application to work correctly.
+</p>
+
+<p>
+After the installation is complete, start the development server by running:
+</p>
+
+<pre><code>npm run start</code></pre>
+
+<p>
+This will launch the app in development mode. By default, it opens in your browser at:
+</p>
+
+<p>
+<a href="http://localhost:3000" target="_blank">http://localhost:3000</a>
+</p>
+
+<p>
+The page will automatically reload whenever you make edits to the source code.<br />
+Any syntax or linting errors will appear in the browser console or terminal.
+</p>
+
+
+<pre><code>npm test</code></pre>
 
 Launches the test runner in the interactive watch mode.\
 See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
 
-### `npm run build`
+<pre><code>npm run build</code></pre>
 
 Builds the app for production to the `build` folder.\
 It correctly bundles React in production mode and optimizes the build for the best performance.
@@ -29,7 +94,7 @@ Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
-### `npm run eject`
+<pre><code>npm run eject</code></pre>
 
 **Note: this is a one-way operation. Once you `eject`, you can't go back!**
 
