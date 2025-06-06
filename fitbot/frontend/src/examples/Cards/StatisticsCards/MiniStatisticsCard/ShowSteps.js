@@ -1,71 +1,49 @@
-import React, { useMemo, useState, useEffect } from "react";
-import PropTypes from "prop-types";
+
+import React, { useMemo, useState, useEffect, useRef } from "react";
 import Grid from "@mui/material/Grid";
 import Card from "@mui/material/Card";
-import { Bar, Line } from "react-chartjs-2";
-import DefaultDoughnutChart from "../../../../examples/Charts/DoughnutCharts/DefaultDoughnutChart";
 import SoftBox from "../../../../components/SoftBox";
 import SoftTypography from "../../../../components/SoftTypography";
-import configs from "../../../../examples/Charts/DoughnutCharts/DefaultDoughnutChart/configs";
+import * as d3 from "d3";
 
-import {
-  Chart as ChartJS,
-  ArcElement,
-  BarElement,
-  CategoryScale,
-  LinearScale,
-  Tooltip,
-  Legend,
-  LineElement,
-  PointElement,
-  TimeScale,
-  Title,
-  Filler,
-  TimeSeriesScale,
-} from "chart.js";
+function parseLocalDate(dateString) {
+  return new Date(dateString);
+}
 
-import zoomPlugin from "chartjs-plugin-zoom";
-import "chartjs-adapter-date-fns";
-
-ChartJS.register(
-  ArcElement,
-  BarElement,
-  LineElement,
-  PointElement,
-  CategoryScale,
-  LinearScale,
-  TimeScale,
-  TimeSeriesScale,
-  Tooltip,
-  Legend,
-  Title,
-  Filler,
-  zoomPlugin
-);
-
-function isSameDay(date1, date2) {
+function isSameDay(d1, d2) {
   return (
-    date1.getFullYear() === date2.getFullYear() &&
-    date1.getMonth() === date2.getMonth() &&
-    date1.getDate() === date2.getDate()
+    d1.getFullYear() === d2.getFullYear() &&
+    d1.getMonth() === d2.getMonth() &&
+    d1.getDate() === d2.getDate()
   );
+}
+
+function getWeekStart(date) {
+  const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  d.setDate(d.getDate() - d.getDay());
+  return d;
 }
 
 export default function ShowSteps() {
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+
+  const doughnutRef = useRef(null);
+  const barRef = useRef(null);
+  const lineRef = useRef(null);
 
   useEffect(() => {
     async function fetchLogs() {
       try {
-        const response = await fetch("http://localhost:3001/activitylogs");
-        if (!response.ok) throw new Error("Failed to fetch logs");
-        const data = await response.json();
-        const alyssaLogs = data.filter((log) => log.user === "alyssa");
-        setLogs(alyssaLogs);
+        const res = await fetch("http://localhost:3001/activitylogs");
+        const data = await res.json();
+        const filtered = data.filter((log) => {
+          const user = log.user || log["﻿user"];
+          return user === "alyssa";
+        });
+        setLogs(filtered);
       } catch (err) {
-        setError(err.message || "Unknown error");
+        console.error("Failed to fetch logs", err);
       } finally {
         setLoading(false);
       }
@@ -73,182 +51,205 @@ export default function ShowSteps() {
     fetchLogs();
   }, []);
 
-  const targetSteps = 10000; // Target stays 10,000 (unchanged)
+  const today = useMemo(() => {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  }, []);
 
-  // Weekly steps, Sunday to Saturday of current week
+  // Total steps today
+  const totalStepsToday = useMemo(() => {
+    return logs
+      .filter((log) => {
+        if (!log.timestamp) return false;
+        const date = parseLocalDate(log.timestamp);
+        return isSameDay(date, today);
+      })
+      .reduce((sum, log) => sum + Number(log.stepCount || 0), 0);
+  }, [logs, today]);
+
+  // Weekly steps array Sun-Sat
   const weeklySteps = useMemo(() => {
-    const steps = [0, 0, 0, 0, 0, 0, 0];
-    const today = new Date();
-    const startOfWeek = new Date(today);
-    startOfWeek.setDate(today.getDate() - today.getDay()); // Sunday
-    startOfWeek.setHours(0, 0, 0, 0);
-    const endOfToday = new Date(today);
-    endOfToday.setHours(23, 59, 59, 999);
-
+    const weekStart = getWeekStart(today);
+    const steps = Array(7).fill(0);
     logs.forEach((log) => {
-      const date = new Date(log.timestamp);
-      if (date >= startOfWeek && date <= endOfToday) {
-        const day = date.getDay();
-        // Divide step count by 100 here
-        steps[day] += Number(log.stepCount || 0) / 100;
+      if (!log.timestamp) return;
+      const date = parseLocalDate(log.timestamp);
+      if (date >= weekStart && date <= today) {
+        steps[date.getDay()] += Number(log.stepCount || 0);
       }
     });
     return steps;
-  }, [logs]);
+  }, [logs, today]);
 
-  const weeklyTotal = useMemo(
-    () => weeklySteps.reduce((sum, val) => sum + val, 0),
-    [weeklySteps]
-  );
-
-  const dailyIndex = useMemo(() => new Date().getDay(), []);
-  const dailyTotal = useMemo(() => weeklySteps[dailyIndex] || 0, [weeklySteps, dailyIndex]);
-
-  const dailyPercentage = ((dailyTotal / targetSteps) * 100).toFixed(1);
-
-  const doughnutChart = useMemo(() => {
-    const labels = ["Steps Taken", "Remaining"];
-    const datasets = {
-      label: "Steps",
-      data: [dailyTotal, Math.max(targetSteps - dailyTotal, 0)],
-      backgroundColors: ["success", "light"],
-    };
-    return configs(labels, datasets, 70);
-  }, [dailyTotal, targetSteps]);
-
-  const weeklyBarData = useMemo(
-    () => ({
-      labels: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-      datasets: [
-        {
-          label: "Steps",
-          data: weeklySteps,
-          backgroundColor: "rgba(152, 236, 46)",
-          borderRadius: 4,
-        },
-      ],
-    }),
-    [weeklySteps]
-  );
-
-  const weeklyBarOptions = useMemo(
-    () => ({
-      responsive: true,
-      plugins: {
-        legend: { display: false },
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-        },
-      },
-    }),
-    []
-  );
-
-  // Monthly: last 30 days including today, no future dates counted
-  const monthlyData = useMemo(() => {
-    const now = new Date();
-    const endDate = new Date(now);
-    endDate.setHours(23, 59, 59, 999);
-
-    const startDate = new Date(now);
-    startDate.setDate(now.getDate() - 29);
-    startDate.setHours(0, 0, 0, 0);
-
+  // Monthly steps for last 30 days
+  const monthlySteps = useMemo(() => {
     const stepsByDate = {};
-
-    // Initialize each day with zero steps
-    for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
-      const dayStr = d.toISOString().split("T")[0];
-      stepsByDate[dayStr] = 0;
-    }
+    const end = new Date();
+    const start = new Date();
+    start.setDate(end.getDate() - 29);
 
     logs.forEach((log) => {
-      const logDate = new Date(log.timestamp);
-      const localDate = new Date(logDate.getFullYear(), logDate.getMonth(), logDate.getDate());
-      const dayStr = localDate.toISOString().split("T")[0];
-
-
-      if (stepsByDate.hasOwnProperty(dayStr)) {
-        // Divide step count by 100 here
-        stepsByDate[dayStr] += Number(log.stepCount || 0) / 100;
+      if (!log.timestamp) return;
+      const date = parseLocalDate(log.timestamp);
+      if (date >= start && date <= end) {
+        const key = date.toISOString().slice(0, 10);
+        stepsByDate[key] = (stepsByDate[key] || 0) + Number(log.stepCount || 0);
       }
     });
 
-    const labels = Object.keys(stepsByDate).sort();
-    const data = labels.map((date) => stepsByDate[date]);
-
-    return {
-      labels,
-      datasets: [
-        {
-          label: "Steps per Day",
-          data,
-          fill: true,
-          borderColor: "#2faa54",
-          backgroundColor: "rgb(152, 236, 46, 0.4)",
-          tension: 0.3,
-          pointRadius: 3,
-          pointHoverRadius: 6,
-          pointBackgroundColor: "#2faa54",
-          pointBorderColor: "#2faa54",
-          segment: {
-            borderColor: () => "#2faa54",
-            backgroundColor: () => "rgb(152, 236, 46, 0.4)",
-          },
-        },
-      ],
-    };
+    const result = [];
+    for (let i = 0; i < 30; i++) {
+      const date = new Date(start);
+      date.setDate(start.getDate() + i);
+      const key = date.toISOString().slice(0, 10);
+      result.push({ date: key, value: stepsByDate[key] || 0 });
+    }
+    return result;
   }, [logs]);
 
-  const monthlyOptions = {
-    responsive: true,
-    scales: {
-      x: {
-        type: "time",
-        time: {
-          unit: "day",
-          tooltipFormat: "PP",
-        },
-        title: {
-          display: true,
-          text: "Date",
-        },
-      },
-      y: {
-        beginAtZero: true,
-        title: {
-          display: true,
-          text: "Steps",
-        },
-      },
-    },
-    plugins: {
-      zoom: {
-        pan: { enabled: true, mode: "x" },
-        zoom: { wheel: { enabled: true }, pinch: { enabled: true }, mode: "x" },
-      },
-      legend: { display: true },
-      tooltip: { mode: "index", intersect: false },
-    },
-  };
+  // Goal steps for doughnut chart
+  const stepGoal = 10000;
 
-  if (loading) return <p>Loading step data...</p>;
-  if (error) return <p>Error: {error}</p>;
+  // Doughnut chart (steps today)
+  useEffect(() => {
+    if (loading || !doughnutRef.current) return;
+
+    const width = 250,
+      height = 250,
+      radius = Math.min(width, height) / 2;
+
+    const svg = d3
+      .select(doughnutRef.current)
+      .attr("width", width)
+      .attr("height", height)
+      .html("")
+      .append("g")
+      .attr("transform", `translate(${width / 2},${height / 2})`);
+
+    const data = [totalStepsToday, Math.max(stepGoal - totalStepsToday, 0)];
+    const color = d3.scaleOrdinal().range(["#388e3c", "#e0e0e0"]); // green & light gray
+
+    const pie = d3.pie();
+    const arc = d3.arc().innerRadius(70).outerRadius(radius);
+
+    svg
+      .selectAll("path")
+      .data(pie(data))
+      .enter()
+      .append("path")
+      .attr("d", arc)
+      .attr("fill", (d, i) => color(i));
+
+    svg
+      .append("text")
+      .text(`${totalStepsToday}/${stepGoal} steps`)
+      .attr("text-anchor", "middle")
+      .attr("dy", "0.35em")
+      .style("font-size", "16px")
+      .style("font-weight", "bold");
+  }, [totalStepsToday, loading]);
+
+  // Bar chart (weekly steps)
+  useEffect(() => {
+    if (loading || !barRef.current) return;
+
+    const svg = d3.select(barRef.current);
+    svg.selectAll("*").remove();
+
+    const margin = { top: 20, right: 10, bottom: 30, left: 40 };
+    const width = 400 - margin.left - margin.right;
+    const height = 250 - margin.top - margin.bottom;
+
+    const g = svg
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    const x = d3
+      .scaleBand()
+      .domain(["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"])
+      .range([0, width])
+      .padding(0.2);
+
+    const y = d3
+      .scaleLinear()
+      .domain([0, d3.max(weeklySteps) || 1])
+      .nice()
+      .range([height, 0]);
+
+    g.append("g").call(d3.axisLeft(y));
+    g.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x));
+
+    g.selectAll("rect")
+      .data(weeklySteps)
+      .enter()
+      .append("rect")
+      .attr("x", (_, i) => x(["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][i]))
+      .attr("y", (d) => y(d))
+      .attr("width", x.bandwidth())
+      .attr("height", (d) => height - y(d))
+      .attr("fill", "#4caf50"); // green 500
+  }, [weeklySteps, loading]);
+
+  // Line chart (monthly steps)
+  useEffect(() => {
+    if (loading || !lineRef.current) return;
+
+    const margin = { top: 20, right: 20, bottom: 40, left: 40 };
+    const width = 800 - margin.left - margin.right;
+    const height = 300 - margin.top - margin.bottom;
+
+    const svg = d3
+      .select(lineRef.current)
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .html("")
+      .append("g")
+      .attr("transform", `translate(${margin.left},${margin.top})`);
+
+    const x = d3
+      .scaleTime()
+      .domain(d3.extent(monthlySteps, (d) => new Date(d.date)))
+      .range([0, width]);
+
+    const y = d3
+      .scaleLinear()
+      .domain([0, d3.max(monthlySteps, (d) => d.value) || 1])
+      .nice()
+      .range([height, 0]);
+
+    const line = d3
+      .line()
+      .x((d) => x(new Date(d.date)))
+      .y((d) => y(d.value))
+      .curve(d3.curveMonotoneX);
+
+    svg.append("g").call(d3.axisLeft(y));
+    svg.append("g").attr("transform", `translate(0,${height})`).call(d3.axisBottom(x));
+
+    svg
+      .append("path")
+      .datum(monthlySteps)
+      .attr("fill", "none")
+      .attr("stroke", "#388e3c") // green 700
+      .attr("stroke-width", 2)
+      .attr("d", line);
+  }, [monthlySteps, loading]);
+
+  if (loading) return <p>Loading step count data…</p>;
 
   return (
-    <Grid container spacing={6}>
+    <Grid container spacing={4}>
       <Grid item xs={12} md={6}>
-        <DefaultDoughnutChart title="Daily Step Progress" height="25rem" chart={doughnutChart} />
-        <SoftBox mt={2} textAlign="center">
-          <SoftTypography variant="h6">
-            {Math.round(dailyTotal)}/{targetSteps} steps
-          </SoftTypography>
-          <SoftTypography variant="caption" color="text">
-            {dailyPercentage}% of daily goal reached
-          </SoftTypography>
-        </SoftBox>
+        <Card>
+          <SoftBox p={3} textAlign="center">
+            <SoftTypography variant="h5" mb={2}>
+              {"Today's Step Count"}
+            </SoftTypography>
+            <svg ref={doughnutRef}></svg>
+          </SoftBox>
+        </Card>
       </Grid>
 
       <Grid item xs={12} md={6}>
@@ -257,7 +258,7 @@ export default function ShowSteps() {
             <SoftTypography variant="h5" mb={2}>
               Weekly Step Count
             </SoftTypography>
-            <Bar data={weeklyBarData} options={weeklyBarOptions} />
+            <svg ref={barRef}></svg>
           </SoftBox>
         </Card>
       </Grid>
@@ -266,18 +267,12 @@ export default function ShowSteps() {
         <Card>
           <SoftBox p={3}>
             <SoftTypography variant="h5" mb={2}>
-              Monthly Step Trend (Zoomable)
+              Monthly Step Count
             </SoftTypography>
-            <Line data={monthlyData} options={monthlyOptions} />
+            <svg ref={lineRef}></svg>
           </SoftBox>
         </Card>
       </Grid>
     </Grid>
   );
 }
-
-ShowSteps.propTypes = {
-  currentSteps: PropTypes.number,
-  targetSteps: PropTypes.number,
-  weeklySteps: PropTypes.arrayOf(PropTypes.number),
-};
