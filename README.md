@@ -17,3 +17,6 @@ Tech Stack (MERN):
 - React.js for the frontend
 - Node.js as the runtime environment for the backend
 
+
+To run the front
+
